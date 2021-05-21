@@ -1,5 +1,5 @@
-import { makeShallowStore, getID } from "./ENUtils.js";
-
+import { makeShallowStore, getID, LambdaClient } from "./ENUtils.js";
+import SimplePeer from "simple-peer";
 export const FallBackJSON = {
   published: true,
   displayName: "encloud-template-nextjs",
@@ -8,8 +8,10 @@ export const FallBackJSON = {
   userID: "609b49ad59f39c00098c34ea",
   slug: "encloud-template-nextjs",
   created_at: "2021-05-20T23:07:51.465Z",
-  updated_at: "2021-05-20T23:17:38.098Z",
+  updated_at: "2021-05-20T23:18:41.392Z",
   __v: 0,
+  largeString:
+    '{"_id":"60a6ebc7d80d490008f8ab95","blockers":[],"ports":[],"connections":[],"pickers":[]}',
 };
 
 export const BASEURL_REST = "https://prod-rest.realtime.effectnode.com";
@@ -62,33 +64,98 @@ export const initFnc = () => {
     .then(({ raw, json }) => {
       ProjectStatus.raw = raw;
       ProjectStatus.json = json;
+      console.log("downloaded JSON");
     })
     .then(() => {
-      ProjectStatus.socket = new LambdaClient({
-        url: ws,
+      let socket = (ProjectStatus.socket = new LambdaClient({
+        url: BASEURL_WS,
+      }));
+
+      let userID = "TruthReceiver" + (Math.random() * 100000000).toFixed(0);
+
+      let setupTruthReceiver = async () => {
+        let peer = new SimplePeer({
+          initiator: true,
+          trickle: false,
+        });
+
+        peer.once("signal", (sig) => {
+          socket.send({
+            action: "signal",
+            roomID: projectID,
+            userID,
+            connectionID: socket.connID,
+            signal: sig,
+          });
+          console.log(sig);
+        });
+
+        socket.once("signal", ({ connectionID, signal, userID }) => {
+          if (
+            connectionID === socket.connID &&
+            userID === "TruthProvider" &&
+            !peer.destroyed
+          ) {
+            peer.signal(signal);
+          }
+        });
+
+        // socket.once("connect", () => {
+        //   console.log("connected");
+        // });
+
+        peer.once("close", () => {
+          peer.destroyed = true;
+        });
+        peer.once("error", () => {
+          peer.destroyed = true;
+        });
+
+        peer.once("connect", () => {
+          console.log("[P2P]: TruthRreceiver OK");
+        });
+
+        peer.on("data", (v) => {
+          if (peer.destroyed) {
+            return;
+          }
+          let str = v.toString();
+          let obj = JSON.parse(str);
+
+          console.log({
+            original: obj,
+            json: JSON.parse(obj.largeString),
+          });
+          // console.log("arrived");
+        });
+      };
+
+      socket.on("join-room", (e) => {
+        socket.connID = e.connectionID;
+        setupTruthReceiver();
+        // console.log("join-room", socket.connID, userID);
       });
 
-      let userID = "userUpdateOnSave" + (Math.random() * 100000000).toFixed(0);
+      socket.on("bridge-project-room", (ev) => {
+        console.log("bridge-project-room", ev);
+
+        let json = JSON.parse(ev.project.largeString);
+        ProjectStatus.raw = ev.project;
+        ProjectStatus.json = json;
+      });
+
+      socket.on("encloud-ready", () => {
+        socket.send({
+          action: "join-room",
+          roomID: projectID,
+          userID,
+        });
+      });
+
       socket.send({
         action: "join-room",
         roomID: projectID,
         userID,
-      });
-
-      socket.on("join-room", (e) => {
-        // console.log(e.connectionID);
-        socket.connID = e.connectionID;
-        console.log("joined-room", socket.connID, userID);
-      });
-
-      socket.on("bridge-project-room", (ev) => {
-        //
-        console.log("bridge-project-room", ev);
-
-        let json = JSON.parse(ev.project.largeString);
-
-        ProjectStatus.raw = ev.project;
-        ProjectStatus.json = json;
       });
     })
     .catch((e) => {
@@ -104,5 +171,3 @@ export const initFnc = () => {
       ProjectStatus.json = false;
     });
 };
-
-initFnc();
