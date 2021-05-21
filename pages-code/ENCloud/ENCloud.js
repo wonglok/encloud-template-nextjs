@@ -1,5 +1,6 @@
 import { makeShallowStore, getID, LambdaClient } from "./ENUtils.js";
 import SimplePeer from "simple-peer";
+
 export const FallBackJSON = {
   published: true,
   displayName: "encloud-template-nextjs",
@@ -107,6 +108,7 @@ export const initFnc = () => {
         peer.once("close", () => {
           peer.destroyed = true;
         });
+
         peer.once("error", () => {
           peer.destroyed = true;
         });
@@ -115,17 +117,18 @@ export const initFnc = () => {
           console.log("[P2P]: TruthRreceiver OK");
         });
 
-        peer.on("data", (v) => {
+        peer.on("data", (buffer) => {
           if (peer.destroyed) {
             return;
           }
-          let str = v.toString();
+          let str = buffer.toString();
           let obj = JSON.parse(str);
 
-          console.log({
-            original: obj,
-            json: JSON.parse(obj.largeString),
-          });
+          let json = JSON.parse(obj.largeString);
+          ProjectStatus.raw = obj;
+          ProjectStatus.json = json;
+
+          truthHasArrived();
           // console.log("arrived");
         });
       };
@@ -142,6 +145,8 @@ export const initFnc = () => {
         let json = JSON.parse(ev.project.largeString);
         ProjectStatus.raw = ev.project;
         ProjectStatus.json = json;
+
+        truthHasArrived();
       });
 
       socket.on("encloud-ready", () => {
@@ -167,7 +172,17 @@ export const initFnc = () => {
           console.log(e);
           ProjectStatus.json = false;
         }
+      } else {
+        ProjectStatus.json = false;
       }
-      ProjectStatus.json = false;
+      truthHasArrived();
     });
+};
+
+const truthHasArrived = () => {
+  window.dispatchEvent(
+    new CustomEvent("project-truth-arrive", {
+      detail: JSON.parse(JSON.stringify(ProjectStatus)),
+    })
+  );
 };
