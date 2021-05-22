@@ -200,7 +200,7 @@ export class CodeRuntime {
   constructor({ parent }) {
     this._id = getID();
     this.parent = parent;
-    let self = this;
+    let runtime = this;
 
     this.mini = new ENMini({ name: "runtime" });
     this.mini.set("parent", parent);
@@ -301,8 +301,8 @@ export class CodeRuntime {
       let prom = [];
       if (uFunc && uFunc.effect) {
         let node = {
-          ...this.mini,
-          runtime: self,
+          ...runtime.mini,
+          runtime: runtime,
           pickers: this.parent.pickers,
           userData: this.parent.userData,
         };
