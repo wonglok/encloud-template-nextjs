@@ -1,4 +1,4 @@
-import { makeShallowStore, getID, LambdaClient } from "./ENUtils.js";
+import { makeShallowStore, LambdaClient } from "./ENUtils.js";
 import SimplePeer from "simple-peer";
 
 export const FallBackJSON = {
@@ -29,25 +29,28 @@ export const ProjectStatus = makeShallowStore({
 });
 
 export const downloadJSON = () => {
-  return fetch(`${BASEURL_REST}/project?action=get-one-of-published`, {
-    headers: {
-      "content-type": "application/json;charset=UTF-8",
-    },
-    body: JSON.stringify({ _id: projectID }),
-    method: "POST",
-    mode: "cors",
-  })
-    .then((res) => {
-      return res.json();
+  return (
+    fetch(`${BASEURL_REST}/project?action=get-one-of-published`, {
+      headers: {
+        "content-type": "application/json;charset=UTF-8",
+      },
+      body: JSON.stringify({ _id: projectID }),
+      method: "POST",
+      mode: "cors",
     })
-    .then((data) => {
       //
-      let json = JSON.parse(data.largeString);
-      return {
-        raw: data,
-        json: json,
-      };
-    });
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        //
+        let json = JSON.parse(data.largeString);
+        return {
+          raw: data,
+          json: json,
+        };
+      })
+  );
 };
 
 export const waitGet = (getFn, resFn) => {

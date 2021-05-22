@@ -2,12 +2,6 @@ import { waitForTruth } from "./ENCloud";
 import { ENMini } from "./ENMini";
 import { getID, makeShallowStore } from "./ENUtils";
 
-if (module.hot) {
-  module.hot.dispose(() => {
-    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
-  });
-}
-
 export class ENRuntime {
   constructor({ userData = {}, enBatteries, autoStart = true }) {
     this.mini = new ENMini();

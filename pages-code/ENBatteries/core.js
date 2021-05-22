@@ -17,7 +17,12 @@ export const effect = async (node) => {
   console.log(node.userData);
 
   node.onClean(() => {});
+
   //
 };
 
-//
+if (module.hot) {
+  module.hot.dispose(() => {
+    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+  });
+}
