@@ -4,20 +4,19 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { ENRuntime } from "../pages-code/ENCloud/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
+let makeBatteries = () => {
+  let enBatteries = [];
+  let reqq = require.context("../pages-code/ENBatteries/", true, /\.js$/);
+  let keys = reqq.keys();
+  keys.forEach((key) => {
+    enBatteries.push(reqq(key));
+  });
+  return enBatteries;
+};
 
 function EffectNode() {
   let three = useThree();
   useEffect(() => {
-    let makeBatteries = () => {
-      let enBatteries = [];
-      let reqq = require.context("../pages-code/ENBatteries/", true, /\.js$/);
-      let keys = reqq.keys();
-      keys.forEach((key) => {
-        enBatteries.push(reqq(key));
-      });
-      return enBatteries;
-    };
-
     let enRunTime = new ENRuntime({
       enBatteries: makeBatteries(),
       userData: {
@@ -25,18 +24,15 @@ function EffectNode() {
       },
     });
 
-    enRunTime.promise.then(() => {
-      //
-      //
-    });
-    //
     return () => {
       enRunTime.mini.clean();
     };
   }, []);
 
-  return null;
+  return <group></group>;
 }
+
+//
 
 export default function Home() {
   return (
@@ -57,7 +53,7 @@ export default function Home() {
 
         <EnvMap></EnvMap>
 
-        <Sphere position-x={-1} args={[1, 25, 25]}>
+        {/* <Sphere position-x={-1} args={[1, 25, 25]}>
           <meshStandardMaterial
             metalness={0.9}
             roughness={0.1}
@@ -69,7 +65,7 @@ export default function Home() {
             metalness={0.9}
             roughness={0.1}
           ></meshStandardMaterial>
-        </Box>
+        </Box> */}
 
         <OrbitControls></OrbitControls>
       </Canvas>

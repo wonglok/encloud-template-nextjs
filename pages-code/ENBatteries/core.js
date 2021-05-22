@@ -1,28 +1,38 @@
+import {
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  SphereBufferGeometry,
+} from "three";
+
 export const title = "core";
 
 export const effect = async (node) => {
-  let messageToBeSent = {
+  let { scene, camera, renderer, raycaster } = node.userData;
+
+  node.out0.pulse({
     a: "b",
-  };
-
-  console.log("messageToBeSent", messageToBeSent);
-  node.out0.pulse(messageToBeSent);
-
-  node.pickers.appSettings.slider1.stream((value) => {
-    console.log(value);
   });
 
-  console.log(node.pickers.appSettings.slider1.value);
+  let mat = new MeshStandardMaterial({
+    color: new Color("#ff0000"),
+    metalness: 1.0,
+    roughness: 0.4,
+  });
 
-  console.log(node.userData);
+  node.pickers.appSettings.color1.stream((value) => {
+    mat.color.setStyle(value);
+  });
 
-  node.onClean(() => {});
+  let geo = new SphereBufferGeometry(1, 32, 32);
 
-  //
+  let mesh = new Mesh(geo, mat);
+
+  scene.add(mesh);
+  node.onClean(() => {
+    scene.remove(mesh);
+  });
 };
 
-if (module.hot) {
-  module.hot.dispose(() => {
-    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
-  });
-}
+//

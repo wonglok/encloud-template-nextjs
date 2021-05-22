@@ -8,11 +8,3 @@ export const effect = async (node) => {
   let val = await node.in0.ready;
   console.log("in0-val", val);
 };
-
-//
-
-if (module.hot) {
-  module.hot.dispose(() => {
-    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
-  });
-}

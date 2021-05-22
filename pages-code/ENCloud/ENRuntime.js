@@ -1,9 +1,10 @@
 import { waitForTruth } from "./ENCloud";
 import { ENMini } from "./ENMini";
-import { getID, makeShallowStore } from "./ENUtils";
+import { getID } from "./ENUtils";
 
 export class ENRuntime {
   constructor({ userData = {}, enBatteries, autoStart = true }) {
+    console.log("building new runtime");
     this.mini = new ENMini();
     this.projectJSON = false;
     this.autoStart = autoStart;
@@ -52,6 +53,8 @@ export class ENRuntime {
       });
 
       if (Signatures.last !== Signatures.now) {
+        Signatures.now = getSignature();
+        Signatures.last = Signatures.now;
         window.dispatchEvent(new CustomEvent("hot-swap-graph"));
       }
     };
@@ -71,21 +74,19 @@ export class ENRuntime {
     });
 
     let handleSwap = () => {
-      Signatures.now = getSignature();
-      Signatures.last = Signatures.now;
-
-      //
       runtimes.forEach(({ mini }) => {
         mini.clean();
       });
 
       runtimes = [];
 
-      runtimes.push(
-        new CodeRuntime({
-          parent: this,
-        })
-      );
+      setTimeout(() => {
+        runtimes.push(
+          new CodeRuntime({
+            parent: this,
+          })
+        );
+      }, 1000);
     };
 
     window.addEventListener("hot-swap-graph", handleSwap, false);
@@ -166,26 +167,8 @@ export class ENRuntime {
       rAFID = requestAnimationFrame(rAF);
     }
 
-    //
-    //
-    // ==-------
-    // // example code
-    // let settings = pickers.appSettings;
-    // settings.color1.stream((value, object) => {
-    //   console.log(value, object);
-    // });
-    // settings.color2.stream((value, object) => {
-    //   console.log(value, object);
-    // });
-    // settings.color3.stream((value, object) => {
-    //   console.log(value, object);
-    // });
-    // console.log("value", settings.color1.value);
-    // // ==-------
-    //
-    //
+    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
 
-    //
     return this;
   }
 }
@@ -295,7 +278,9 @@ export class CodeRuntime {
       let prom = [];
       if (uFunc && uFunc.effect) {
         let node = {
-          ...runtime.mini,
+          onClean: (v) => {
+            runtime.mini.onClean(v);
+          },
           runtime: runtime,
           pickers: this.parent.pickers,
           userData: this.parent.userData,
