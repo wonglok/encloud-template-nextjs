@@ -106,6 +106,14 @@ export class ENMini {
         },
       }
     );
+    this.now = new Proxy(
+      {},
+      {
+        get: (obj, key) => {
+          return this.resource.get(key);
+        },
+      }
+    );
   }
 }
 

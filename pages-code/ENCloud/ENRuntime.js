@@ -63,7 +63,7 @@ export class ENRuntime {
     };
 
     let handleOnSave = () => {
-      window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+      // window.dispatchEvent(new CustomEvent("hot-swap-graph"));
     };
 
     window.addEventListener("on-save", handleOnSave, false);
