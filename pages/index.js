@@ -7,34 +7,28 @@ import { EnvMap } from "../pages-code/EnvMap/EnvMap";
 import path from "path";
 // import styles from "../styles/Home.module.css";
 
-let enBatteries = [];
-let r = require.context("../pages-code/ENBatteries/", true, /js$/);
-
-let keys = r.keys();
-keys.forEach((key) => {
-  enBatteries.push({
-    // title: path.basename(key).replace(".js", ""),
-    ...r(key),
-  });
-});
-
-if (module.hot) {
-  module.hot.dispose(() => {
-    window.location.reload();
-  });
-}
-
-console.log(enBatteries);
-
 export default function Home() {
   let ref = useRef();
   let [ready, setReady] = useState(false);
   useEffect(() => {
+    let makeBatteries = () => {
+      let enBatteries = [];
+      let reqq = require.context("../pages-code/ENBatteries/", true, /\.js$/);
+      let keys = reqq.keys();
+      keys.forEach((key) => {
+        enBatteries.push({
+          // title: path.basename(key).replace(".js", ""),
+          ...reqq(key),
+        });
+      });
+      return enBatteries;
+    };
+
     ref.current = new ENRuntime({
+      enBatteries: makeBatteries(),
       userData: {
         //
       },
-      enBatteries,
     });
 
     ref.current.promise.then(() => {

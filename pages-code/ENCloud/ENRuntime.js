@@ -2,8 +2,14 @@ import { waitForTruth } from "./ENCloud";
 import { ENMini } from "./ENMini";
 import { getID, makeShallowStore } from "./ENUtils";
 
+if (module.hot) {
+  module.hot.dispose(() => {
+    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+  });
+}
+
 export class ENRuntime {
-  constructor({ userData = {}, enBatteries = [], autoStart = true }) {
+  constructor({ userData = {}, enBatteries, autoStart = true }) {
     this.mini = new ENMini();
     this.projectJSON = false;
     this.autoStart = autoStart;
@@ -20,8 +26,10 @@ export class ENRuntime {
 
     //
     let runtimes = [];
-    let nowSignature = "a";
-    let lastSignature = "b";
+    let Signatures = {
+      now: "a",
+      last: "b",
+    };
     let getSignature = () => {
       return JSON.stringify({
         blockers: this.projectJSON.blockers,
@@ -49,13 +57,19 @@ export class ENRuntime {
         });
       });
 
-      if (lastSignature !== nowSignature) {
-        nowSignature = getSignature();
-        lastSignature = nowSignature;
-
+      if (Signatures.last !== Signatures.now) {
         window.dispatchEvent(new CustomEvent("hot-swap-graph"));
       }
     };
+
+    let handleOnSave = () => {
+      window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+    };
+
+    window.addEventListener("on-save", handleOnSave, false);
+    this.mini.onClean(() => {
+      window.removeEventListener("on-save", handleOnSave);
+    });
 
     window.addEventListener("project-arrive", handleArrival, false);
     this.mini.onClean(() => {
@@ -63,17 +77,15 @@ export class ENRuntime {
     });
 
     let handleSwap = () => {
+      Signatures.now = getSignature();
+      Signatures.last = Signatures.now;
+
       //
       runtimes.forEach(({ mini }) => {
         mini.clean();
       });
 
-      runtimes.forEach((val) => {
-        runtimes.splice(
-          runtimes.findIndex((r) => r._id === val._id),
-          1
-        );
-      });
+      runtimes = [];
 
       runtimes.push(
         new CodeRuntime({
@@ -143,13 +155,10 @@ export class ENRuntime {
       },
     };
 
-    let pickers = new Proxy({}, pickerModAPI);
-
-    let core = {
-      pickers,
-      mini: this.mini,
+    this.pickers = new Proxy({}, pickerModAPI);
+    this.coreAPI = {
+      pickers: this.pickers,
     };
-    this.core = core;
 
     let rAFID = 0;
     let rAF = () => {
@@ -208,42 +217,61 @@ export class CodeRuntime {
     let ports = this.parent.projectJSON.ports;
 
     connections.forEach((conn) => {
+      //
       let handlConn = ({ detail }) => {
-        window.dispatchEvent("i" + conn.input._id, { detail });
+        window.dispatchEvent(new CustomEvent(conn.input._id, { detail }));
       };
-      window.addEventListener("o" + conn.output._id, handlConn);
-      window.removeEventListener("o" + conn.output._id, handlConn);
+      window.addEventListener(conn.output._id, handlConn);
+      this.mini.onClean(() => {
+        window.removeEventListener(conn.output._id, handlConn);
+      });
     });
 
     blockers.forEach((b) => {
+      //
       console.log("CodeBlockerRuntime", b.title);
       let uFunc = parent.enBatteries.find((f) => f.title === b.title);
       let portsAPIMap = new Map();
+
+      let mode = "queue";
+      let queue = [];
+
+      this.mini.ready["ready-all"].then(() => {
+        mode = "can-send";
+        queue.forEach((ev) => {
+          window.dispatchEvent(
+            new CustomEvent(ev.eventName, { detail: ev.detail })
+          );
+        });
+      });
+
+      //
       ports
         .filter((e) => e.blockerID === b._id)
         .filter((e) => e.type === "input")
         .map((e, idx) => {
           let api = {
             stream: (onReceive) => {
-              window.addEventListener("i" + e._id, onReceive);
+              let hh = ({ detail }) => {
+                onReceive(detail);
+              };
+              window.addEventListener(e._id, hh);
               this.mini.onClean(() => {
-                window.removeEventListener("i" + e._id, onReceive);
+                window.removeEventListener(e._id, hh);
               });
             },
-            get wait() {
+            get ready() {
               return new Promise((resolve) => {
                 let hh = ({ detail }) => {
                   resolve(detail);
+                  window.removeEventListener(e._id, hh);
                 };
-                window.addEventListener("i" + e._id, hh);
-                self.mini.onClean(() => {
-                  window.removeEventListener("i" + e._id, hh);
-                });
+                window.addEventListener(e._id, hh);
               });
             },
           };
 
-          portsAPIMap.set(`i${idx}`, api);
+          portsAPIMap.set(`in${e.idx || idx}`, api);
 
           return e;
         });
@@ -254,39 +282,53 @@ export class CodeRuntime {
         .map((e, idx) => {
           let api = {
             pulse: (data) => {
-              window.dispatchEvent(
-                new CustomEvent("o" + e._id, { detail: data })
-              );
+              if (mode === "queue") {
+                queue.push({
+                  eventName: e._id,
+                  detail: data,
+                });
+                console.log("queue how long", queue.length);
+              } else {
+                window.dispatchEvent(new CustomEvent(e._id, { detail: data }));
+              }
             },
           };
-          portsAPIMap.set(`o${idx}`, api);
+          portsAPIMap.set(`out${e.idx || idx}`, api);
 
           return e;
         });
 
-      if (uFunc && uFunc.setup) {
-        uFunc.setup(
-          new Proxy(
-            {
-              ...this.parent.core,
-              parent: this.parent,
-              mini: this.mini,
-            },
-            {
+      let prom = [];
+      if (uFunc && uFunc.effect) {
+        let node = {
+          ...this.mini,
+          runtime: self,
+          pickers: this.parent.pickers,
+          userData: this.parent.userData,
+        };
+        prom.push(
+          uFunc.effect(
+            new Proxy(node, {
               get: (obj, key) => {
-                if (key.indexOf("i") === 0 && !isNaN(key[1])) {
+                //
+                if (key.indexOf("in") === 0 && !isNaN(key[2])) {
                   return portsAPIMap.get(key);
                 }
-                if (key.indexOf("o") === 0 && !isNaN(key[1])) {
+
+                if (key.indexOf("out") === 0 && !isNaN(key[3])) {
                   return portsAPIMap.get(key);
                 }
 
                 return obj[key];
               },
-            }
+            })
           )
         );
       }
+
+      Promise.all(prom).then(() => {
+        this.mini.set("ready-all", true);
+      });
     });
   }
 }
