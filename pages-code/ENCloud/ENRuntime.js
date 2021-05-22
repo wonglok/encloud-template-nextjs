@@ -108,6 +108,11 @@ export class ENRuntime {
         this.mini.onClean(() => {
           window.removeEventListener(`${moduleTitle}/${pickerTitle}`, hPicker);
         });
+
+        let ans = this.projectJSON?.pickers
+          ?.find((e) => e.title === moduleTitle)
+          ?.pickers?.find((e) => e.title === pickerTitle);
+        fnc(ans.value, ans);
       };
 
       let pickerAPI = {
