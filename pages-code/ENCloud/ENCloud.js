@@ -128,7 +128,7 @@ export const initFnc = () => {
           ProjectStatus.raw = obj;
           ProjectStatus.json = json;
 
-          truthHasArrived();
+          announceTruth();
           // console.log("arrived");
         });
       };
@@ -146,7 +146,8 @@ export const initFnc = () => {
         ProjectStatus.raw = ev.project;
         ProjectStatus.json = json;
 
-        truthHasArrived();
+        announceTruth();
+        onSave();
       });
 
       socket.on("encloud-ready", () => {
@@ -175,14 +176,47 @@ export const initFnc = () => {
       } else {
         ProjectStatus.json = false;
       }
-      truthHasArrived();
+      announceTruth();
     });
 };
 
-const truthHasArrived = () => {
+if (typeof window !== "undefined") {
+  initFnc();
+}
+
+const onSave = () => {
+  //
+  window.dispatchEvent(new CustomEvent("on-save", {}));
+};
+const announceTruth = () => {
   window.dispatchEvent(
-    new CustomEvent("project-truth-arrive", {
-      detail: JSON.parse(JSON.stringify(ProjectStatus)),
+    new CustomEvent("project-arrive", {
+      detail: JSON.parse(JSON.stringify(ProjectStatus.json)),
     })
   );
+
+  //
+  // console.log("project-arrive");
+};
+
+export const waitForTruth = (fnc) => {
+  if (fnc) {
+    let tt = setInterval(() => {
+      let ans = ProjectStatus.json;
+      if (typeof ans === "object" && !!ans && ans !== null) {
+        clearInterval(tt);
+        fnc(ans);
+      }
+    }, 0);
+  } else {
+    return new Promise((resolve) => {
+      let tt = setInterval(() => {
+        let ans = ProjectStatus.json;
+        if (typeof ans === "object" && !!ans && ans !== null) {
+          clearInterval(tt);
+          resolve(ans);
+        }
+      }, 0);
+    });
+  }
 };
