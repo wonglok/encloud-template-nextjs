@@ -194,9 +194,6 @@ const announceTruth = () => {
       detail: JSON.parse(JSON.stringify(ProjectStatus.json)),
     })
   );
-
-  //
-  // console.log("project-arrive");
 };
 
 export const waitForTruth = (fnc) => {
