@@ -196,6 +196,14 @@ export class ENCloud {
           userID,
         });
 
+        socket.on("reconnected", () => {
+          socket.send({
+            action: "join-room",
+            roomID: this.projectID,
+            userID,
+          });
+        });
+
         this.mini.onClean(() => {
           socket.dispose();
         });

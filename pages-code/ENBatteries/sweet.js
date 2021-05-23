@@ -22,7 +22,7 @@ export const effect = async (node) => {
   });
 
   node.pickers.appSettings.color2.stream((value) => {
-    mat.color.setStyle(value); //.offsetHSL(0.1, 0, 0);
+    mat.color.setStyle(value);
   });
 
   let geo = new SphereBufferGeometry(1, 32, 32);
@@ -52,3 +52,11 @@ export const effect = async (node) => {
     mesh.position.lerp(destination, 0.05);
   });
 };
+
+//
+
+//
+
+//
+
+//
