@@ -36,8 +36,8 @@ export class ENRuntime {
     //
     let runtimes = [];
     let Signatures = {
-      now: "a",
-      last: "b",
+      now: "now",
+      last: "last",
     };
 
     //
