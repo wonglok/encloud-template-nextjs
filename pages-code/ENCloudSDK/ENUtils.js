@@ -235,7 +235,11 @@ export class LambdaClient extends EventEmitter {
       if (this.ws.__disposed) {
         return;
       }
-      console.log("WebSocket: opened");
+      console.log(
+        isReconnect
+          ? "WebSopcket reopened, please rejoin room to refresh connection ID"
+          : "WebSocket: opened"
+      );
       if (isReconnect) {
         this.trigger("reconnected");
       }

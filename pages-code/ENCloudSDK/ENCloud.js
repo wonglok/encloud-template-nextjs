@@ -1,6 +1,9 @@
 import { makeShallowStore, LambdaClient } from "./ENUtils.js";
 import SimplePeer from "simple-peer";
 
+export const BASEURL_REST = "https://prod-rest.realtime.effectnode.com";
+export const BASEURL_WS = `wss://prod-ws.realtime.effectnode.com`;
+
 export class ENCloud {
   constructor({ fallbackJSON, mini }) {
     this.mini = mini;
@@ -9,8 +12,8 @@ export class ENCloud {
     this.username = fallbackJSON.username;
     this.userID = fallbackJSON.userID;
 
-    this.BASEURL_REST = "https://prod-rest.realtime.effectnode.com";
-    this.BASEURL_WS = `wss://prod-ws.realtime.effectnode.com`;
+    this.BASEURL_REST = BASEURL_REST;
+    this.BASEURL_WS = BASEURL_WS;
 
     this.projectStatus = makeShallowStore({
       raw: false,

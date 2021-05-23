@@ -2,6 +2,8 @@ import { ENCloud } from "./ENCloud";
 import { ENMini } from "./ENMini";
 import { getID } from "./ENUtils";
 
+export { BASEURL_REST, BASEURL_WS } from "./ENCloud";
+
 export class ENRuntime {
   constructor({
     projectJSON,
