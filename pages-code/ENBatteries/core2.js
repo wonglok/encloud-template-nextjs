@@ -7,4 +7,6 @@ export const effect = async (node) => {
 
   let val = await node.in0.ready;
   console.log("in0-val", val);
+
+  //
 };

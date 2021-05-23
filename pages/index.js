@@ -18,6 +18,19 @@ function EffectNode() {
   let three = useThree();
   useEffect(() => {
     let enRunTime = new ENRuntime({
+      projectJSON: {
+        published: true,
+        displayName: "encloud-template-nextjs",
+        _id: "60a6ebc7d80d490008f8ab95",
+        username: "wonglok831",
+        userID: "609b49ad59f39c00098c34ea",
+        slug: "encloud-template-nextjs",
+        created_at: "2021-05-20T23:07:51.465Z",
+        updated_at: "2021-05-20T23:18:41.392Z",
+        __v: 0,
+        largeString:
+          '{"_id":"60a6ebc7d80d490008f8ab95","blockers":[],"ports":[],"connections":[],"pickers":[]}',
+      },
       enBatteries: makeBatteries(),
       userData: {
         ...three,
@@ -43,14 +56,19 @@ export default function Home() {
       </Head>
 
       <Canvas>
+        {/*  */}
         <EffectNode></EffectNode>
+
+        {/*  */}
         <directionalLight
           position={[10, 10, 10]}
           intensity={0.1}
         ></directionalLight>
 
+        {/*  */}
         <ambientLight intensity={0.1}></ambientLight>
 
+        {/*  */}
         <EnvMap></EnvMap>
 
         {/* <Sphere position-x={-1} args={[1, 25, 25]}>

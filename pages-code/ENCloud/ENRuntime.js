@@ -1,11 +1,18 @@
-import { waitForTruth } from "./ENCloud";
+import { ENCloud } from "./ENCloud";
 import { ENMini } from "./ENMini";
 import { getID } from "./ENUtils";
 
 export class ENRuntime {
-  constructor({ userData = {}, enBatteries, autoStart = true }) {
-    console.log("building new runtime");
+  constructor({ projectJSON, userData = {}, enBatteries, autoStart = true }) {
+    if (!projectJSON) {
+      throw new Error("NEEDS Project JSON");
+    }
+    this.fallBackJSON = projectJSON;
     this.mini = new ENMini();
+    this.encloud = new ENCloud({
+      fallbackJSON: this.fallBackJSON,
+      mini: this.mini,
+    });
     this.projectJSON = false;
     this.autoStart = autoStart;
     this.enBatteries = enBatteries;
@@ -14,7 +21,7 @@ export class ENRuntime {
   }
   async setup() {
     //
-    this.projectJSON = await waitForTruth();
+    this.projectJSON = await this.encloud.waitForTruth();
 
     //
     let activeListener = new Map();
@@ -78,15 +85,25 @@ export class ENRuntime {
         mini.clean();
       });
 
-      runtimes = [];
-
-      setTimeout(() => {
-        runtimes.push(
-          new CodeRuntime({
-            parent: this,
-          })
+      runtimes.forEach((r) => {
+        runtimes.splice(
+          runtimes.findIndex((rr) => rr._id === r),
+          1
         );
-      }, 1000);
+      });
+
+      runtimes.push(
+        new CodeRuntime({
+          parent: this,
+        })
+      );
+      // setTimeout(() => {
+      //   runtimes.push(
+      //     new CodeRuntime({
+      //       parent: this,
+      //     })
+      //   );
+      // }, 1000);
     };
 
     window.addEventListener("hot-swap-graph", handleSwap, false);

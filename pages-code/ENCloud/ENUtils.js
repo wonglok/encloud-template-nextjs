@@ -346,84 +346,84 @@ export class LambdaClient extends EventEmitter {
   }
 }
 
-export const makeReceiverPeer = ({ url }) => {
-  let socket = new LambdaClient({
-    url: BASEURL_WS,
-  });
+// export const makeReceiverPeer = ({ url }) => {
+//   let socket = new LambdaClient({
+//     url: BASEURL_WS,
+//   });
 
-  socket.send({
-    action: "join-room",
-    roomID: projectID,
-    userID: "ARClient",
-  });
+//   socket.send({
+//     action: "join-room",
+//     roomID: projectID,
+//     userID: "ARClient",
+//   });
 
-  let setupPeer = async () => {
-    let peer = new SimplePeer({
-      initiator: true,
-      trickle: false,
-    });
+//   let setupPeer = async () => {
+//     let peer = new SimplePeer({
+//       initiator: true,
+//       trickle: false,
+//     });
 
-    peer.once("signal", (sig) => {
-      socket.send({
-        action: "signal",
-        roomID: projectID,
-        userID: "ARClient",
-        connectionID: socket.connID,
-        signal: sig,
-      });
-      console.log(sig);
-    });
+//     peer.once("signal", (sig) => {
+//       socket.send({
+//         action: "signal",
+//         roomID: projectID,
+//         userID: "ARClient",
+//         connectionID: socket.connID,
+//         signal: sig,
+//       });
+//       console.log(sig);
+//     });
 
-    socket.once("signal", ({ connectionID, signal, userID }) => {
-      if (
-        connectionID === socket.connID &&
-        userID === "ENCloud" &&
-        !peer.destroyed
-      ) {
-        peer.signal(signal);
-      }
-    });
+//     socket.once("signal", ({ connectionID, signal, userID }) => {
+//       if (
+//         connectionID === socket.connID &&
+//         userID === "ENCloud" &&
+//         !peer.destroyed
+//       ) {
+//         peer.signal(signal);
+//       }
+//     });
 
-    // socket.once("connect", () => {
-    //   console.log("connected");
-    // });
+//     // socket.once("connect", () => {
+//     //   console.log("connected");
+//     // });
 
-    peer.once("close", () => {
-      peer.destroyed = true;
-    });
-    peer.once("error", () => {
-      peer.destroyed = true;
-    });
+//     peer.once("close", () => {
+//       peer.destroyed = true;
+//     });
+//     peer.once("error", () => {
+//       peer.destroyed = true;
+//     });
 
-    peer.once("connect", () => {
-      console.log("happyhappy connetec  at the AR Clinet");
-    });
+//     peer.once("connect", () => {
+//       console.log("happyhappy connetec  at the AR Clinet");
+//     });
 
-    peer.on("data", (v) => {
-      if (peer.destroyed) {
-        return;
-      }
-      let str = v.toString();
-      let obj = JSON.parse(str);
+//     peer.on("data", (v) => {
+//       if (peer.destroyed) {
+//         return;
+//       }
+//       let str = v.toString();
+//       let obj = JSON.parse(str);
 
-      processJSON({
-        original: obj,
-        json: JSON.parse(obj.largeString),
-      });
-      // console.log("arrived");
-    });
-  };
+//       processJSON({
+//         original: obj,
+//         json: JSON.parse(obj.largeString),
+//       });
+//       // console.log("arrived");
+//     });
+//   };
 
-  socket.on("join-room", (resp) => {
-    socket.connID = resp.connectionID;
-    setupPeer();
-  });
+//   socket.on("join-room", (resp) => {
+//     socket.connID = resp.connectionID;
+//     setupPeer();
+//   });
 
-  socket.on("encloud-ready", () => {
-    socket.send({
-      action: "join-room",
-      roomID: projectID,
-      userID: "ARClient",
-    });
-  });
-};
+//   socket.on("encloud-ready", () => {
+//     socket.send({
+//       action: "join-room",
+//       roomID: projectID,
+//       userID: "ARClient",
+//     });
+//   });
+// };
