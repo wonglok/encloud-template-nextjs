@@ -37,6 +37,8 @@ export class ENRuntime {
       now: "a",
       last: "b",
     };
+
+    //
     let getSignature = () => {
       return JSON.stringify({
         blockers: this.projectJSON.blockers.map((e) => {
@@ -46,7 +48,7 @@ export class ENRuntime {
           return [e._id];
         }),
         connections: this.projectJSON.connections.map((e) => {
-          return [e._id];
+          return [e._id, e.input._id, e.output._id];
         }),
       });
     };

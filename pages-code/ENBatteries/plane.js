@@ -6,7 +6,6 @@ import {
   PlaneBufferGeometry,
 } from "three";
 
-// override
 export const title = "plane";
 
 export const effect = async (node) => {

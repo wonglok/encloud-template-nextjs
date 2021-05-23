@@ -8,7 +8,6 @@ import {
   Vector3,
 } from "three";
 
-// override
 export const title = "sweet";
 
 export const effect = async (node) => {
