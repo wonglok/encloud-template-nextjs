@@ -21,6 +21,12 @@ export const effect = async (node) => {
 
   let geo = new SphereBufferGeometry(1, 32, 32);
   let mesh = new Mesh(geo, mat);
+  mesh.scale.x = 0.5;
+
+  node.onLoop((t, dt) => {
+    mesh.rotation.y += Math.sin(t) * dt * Math.PI;
+    mesh.rotation.z += Math.cos(t) * dt * Math.PI;
+  });
 
   scene.add(mesh);
   node.onClean(() => {
@@ -29,7 +35,5 @@ export const effect = async (node) => {
 };
 
 //
-
 //
-
 //

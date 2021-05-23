@@ -70,7 +70,9 @@ export class ENMini {
       }
     };
 
+    this.lastTime = window.performance.now();
     this.work = () => {
+      this.timeNow = window.performance.now();
       if (isAborted) {
         return {
           name: this.name,
@@ -85,7 +87,17 @@ export class ENMini {
       }
       let start = window.performance.now();
       try {
-        this.tasks.forEach((e) => e());
+        let t = this.timeNow;
+        let lt = this.lastTime;
+        let dt = t - lt;
+        this.lastTime = t;
+        dt = dt / 1000;
+        t = t / 1000;
+        if (dt >= 100) {
+          dt = 100;
+        }
+
+        this.tasks.forEach((e) => e(t, dt));
       } catch (e) {
         console.error(e);
       }

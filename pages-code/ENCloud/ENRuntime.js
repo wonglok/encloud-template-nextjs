@@ -3,7 +3,12 @@ import { ENMini } from "./ENMini";
 import { getID } from "./ENUtils";
 
 export class ENRuntime {
-  constructor({ projectJSON, userData = {}, enBatteries, autoStart = true }) {
+  constructor({
+    projectJSON,
+    userData = {},
+    enBatteries = [],
+    autoStartLoop = true,
+  }) {
     if (!projectJSON) {
       throw new Error("NEEDS Project JSON");
     }
@@ -14,7 +19,7 @@ export class ENRuntime {
       mini: this.mini,
     });
     this.projectJSON = false;
-    this.autoStart = autoStart;
+    this.autoStartLoop = autoStartLoop;
     this.enBatteries = enBatteries;
     this.userData = userData;
     this.promise = this.setup();
@@ -185,7 +190,7 @@ export class ENRuntime {
     this.mini.onClean(() => {
       cancelAnimationFrame(rAFID);
     });
-    if (this.autoStart) {
+    if (this.autoStartLoop) {
       rAFID = requestAnimationFrame(rAF);
     }
 
@@ -302,6 +307,9 @@ export class CodeRuntime {
         let node = {
           onClean: (v) => {
             runtime.mini.onClean(v);
+          },
+          onLoop: (v) => {
+            runtime.mini.onLoop(v);
           },
           runtime: runtime,
           pickers: this.parent.pickers,
