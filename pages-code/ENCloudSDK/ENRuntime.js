@@ -39,9 +39,15 @@ export class ENRuntime {
     };
     let getSignature = () => {
       return JSON.stringify({
-        blockers: this.projectJSON.blockers,
-        ports: this.projectJSON.ports,
-        connections: this.projectJSON.connections,
+        blockers: this.projectJSON.blockers.map((e) => {
+          return [e._id, e.title];
+        }),
+        ports: this.projectJSON.ports.map((e) => {
+          return [e._id];
+        }),
+        connections: this.projectJSON.connections.map((e) => {
+          return [e._id];
+        }),
       });
     };
 
@@ -65,14 +71,14 @@ export class ENRuntime {
       });
 
       if (Signatures.last !== Signatures.now) {
-        Signatures.now = getSignature();
         Signatures.last = Signatures.now;
         window.dispatchEvent(new CustomEvent("hot-swap-graph"));
       }
+      Signatures.now = getSignature();
     };
 
     let handleOnSave = () => {
-      // window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+      window.dispatchEvent(new CustomEvent("hot-swap-graph"));
     };
 
     window.addEventListener("on-save", handleOnSave, false);
