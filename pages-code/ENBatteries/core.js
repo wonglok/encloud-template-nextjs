@@ -3,7 +3,7 @@ import { Color, Mesh, MeshStandardMaterial, SphereBufferGeometry } from "three";
 export const title = "core";
 
 export const effect = async (node) => {
-  let { scene, camera, renderer, raycaster } = node.userData;
+  let { scene, camera, renderer, raycaster, mouse } = node.userData;
 
   let mat = new MeshStandardMaterial({
     color: new Color("#ff0000"),
@@ -27,6 +27,18 @@ export const effect = async (node) => {
   scene.add(mesh);
   node.onClean(() => {
     scene.remove(mesh);
+  });
+
+  node.onLoop(() => {
+    raycaster.setFromCamera(mouse, camera);
+    let items = raycaster.intersectObject(mesh);
+
+    if (items.length > 0) {
+      //
+      node.out0.pulse({
+        point: items[0].point,
+      });
+    }
   });
 
   // node.out0.pulse({
