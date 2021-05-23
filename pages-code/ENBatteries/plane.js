@@ -1,12 +1,13 @@
 import {
-  BoxBufferGeometry,
   Color,
   DoubleSide,
   Mesh,
   MeshStandardMaterial,
+  PlaneBufferGeometry,
 } from "three";
 
-export const title = "core";
+// override
+export const title = "plane";
 
 export const effect = async (node) => {
   let { scene, camera, renderer, raycaster, mouse } = node.userData;
@@ -25,7 +26,8 @@ export const effect = async (node) => {
     mat.color.setStyle(value); //.offsetHSL(0.1, 0, 0);
   });
 
-  let geo = new BoxBufferGeometry(3, 3, 3);
+  let geo = new PlaneBufferGeometry(3, 3);
+  geo.rotateX(-Math.PI * 0.35);
 
   let mesh = new Mesh(geo, mat);
 

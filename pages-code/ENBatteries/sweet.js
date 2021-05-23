@@ -1,4 +1,5 @@
 import {
+  AdditiveBlending,
   Color,
   DoubleSide,
   Mesh,
@@ -7,7 +8,8 @@ import {
   Vector3,
 } from "three";
 
-export const title = "core2";
+// override
+export const title = "sweet";
 
 export const effect = async (node) => {
   let { scene, camera, renderer, raycaster, mouse } = node.userData;
@@ -20,6 +22,7 @@ export const effect = async (node) => {
     opacity: 0.5,
     flatShading: true,
     side: DoubleSide,
+    blending: AdditiveBlending,
   });
 
   node.pickers.appSettings.color2.stream((value) => {
@@ -41,15 +44,15 @@ export const effect = async (node) => {
     scene.remove(mesh);
   });
 
-  let desintaion = new Vector3();
+  let destination = new Vector3();
 
   node.in0.stream((ev) => {
     if (ev && ev.point) {
-      desintaion.copy(ev.point);
+      destination.copy(ev.point);
     }
   });
 
   node.onLoop(() => {
-    mesh.position.lerp(desintaion, 0.05);
+    mesh.position.lerp(destination, 0.05);
   });
 };
