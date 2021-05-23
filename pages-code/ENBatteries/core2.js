@@ -1,5 +1,6 @@
 import {
   Color,
+  DoubleSide,
   Mesh,
   MeshStandardMaterial,
   SphereBufferGeometry,
@@ -15,6 +16,10 @@ export const effect = async (node) => {
     color: new Color("#ff0000"),
     metalness: 1.0,
     roughness: 0.4,
+    transparent: true,
+    opacity: 0.5,
+    flatShading: true,
+    side: DoubleSide,
   });
 
   node.pickers.appSettings.color2.stream((value) => {

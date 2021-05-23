@@ -233,7 +233,6 @@ export class CodeRuntime {
 
     blockers.forEach((b) => {
       //
-      console.log("CodeBlockerRuntime", b.title);
       let uFunc = parent.enBatteries.find((f) => f.title === b.title);
       let portsAPIMap = new Map();
 
