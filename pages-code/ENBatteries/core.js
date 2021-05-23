@@ -5,10 +5,6 @@ export const title = "core";
 export const effect = async (node) => {
   let { scene, camera, renderer, raycaster } = node.userData;
 
-  node.out0.pulse({
-    a: "b",
-  });
-
   let mat = new MeshStandardMaterial({
     color: new Color("#ff0000"),
     metalness: 1.0,
@@ -21,10 +17,10 @@ export const effect = async (node) => {
 
   let geo = new SphereBufferGeometry(1, 32, 32);
   let mesh = new Mesh(geo, mat);
-  mesh.scale.x = 0.5;
+  mesh.scale.x = 0.53;
 
   node.onLoop((t, dt) => {
-    mesh.rotation.y += Math.sin(t) * dt * Math.PI;
+    mesh.rotation.y += Math.sin(t) * dt * 1.0 * Math.PI;
     mesh.rotation.z += Math.cos(t) * dt * Math.PI;
   });
 
@@ -32,6 +28,10 @@ export const effect = async (node) => {
   node.onClean(() => {
     scene.remove(mesh);
   });
+
+  // node.out0.pulse({
+  //   a: "b",
+  // });
 };
 
 //
