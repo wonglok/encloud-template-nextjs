@@ -2,7 +2,7 @@ import { Box, OrbitControls, Sphere } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
-import { ENRuntime } from "../pages-code/ENCloud/ENRuntime";
+import { ENRuntime } from "../pages-code/ENCloudSDK/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
 let loadBattriesInFolder = () => {
   let enBatteries = [];

@@ -40,10 +40,6 @@ export const effect = async (node) => {
       });
     }
   });
-
-  // node.out0.pulse({
-  //   a: "b",
-  // });
 };
 
 //

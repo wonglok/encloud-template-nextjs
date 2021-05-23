@@ -312,6 +312,7 @@ export class CodeRuntime {
             runtime.mini.onLoop(v);
           },
           runtime: runtime,
+          graphEngine: runtime.mini,
           pickers: this.parent.pickers,
           userData: this.parent.userData,
         };

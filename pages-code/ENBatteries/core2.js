@@ -1,4 +1,10 @@
-import { Color, Mesh, MeshStandardMaterial, SphereBufferGeometry } from "three";
+import {
+  Color,
+  Mesh,
+  MeshStandardMaterial,
+  SphereBufferGeometry,
+  Vector3,
+} from "three";
 
 export const title = "core2";
 
@@ -17,7 +23,7 @@ export const effect = async (node) => {
 
   let geo = new SphereBufferGeometry(1, 32, 32);
   let mesh = new Mesh(geo, mat);
-  mesh.scale.x = 1;
+  mesh.scale.z = 0.5;
   mesh.scale.multiplyScalar(0.33);
 
   node.onLoop((t, dt) => {
@@ -30,9 +36,15 @@ export const effect = async (node) => {
     scene.remove(mesh);
   });
 
+  let desintaion = new Vector3();
+
   node.in0.stream((ev) => {
     if (ev && ev.point) {
-      mesh.position.lerp(ev.point, 0.1);
+      desintaion.copy(ev.point);
     }
+  });
+
+  node.onLoop(() => {
+    mesh.position.lerp(desintaion, 0.05);
   });
 };
