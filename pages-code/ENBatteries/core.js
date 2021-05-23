@@ -1,10 +1,4 @@
-import {
-  Color,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  SphereBufferGeometry,
-} from "three";
+import { Color, Mesh, MeshStandardMaterial, SphereBufferGeometry } from "three";
 
 export const title = "core";
 
@@ -26,7 +20,6 @@ export const effect = async (node) => {
   });
 
   let geo = new SphereBufferGeometry(1, 32, 32);
-
   let mesh = new Mesh(geo, mat);
 
   scene.add(mesh);
@@ -34,5 +27,9 @@ export const effect = async (node) => {
     scene.remove(mesh);
   });
 };
+
+//
+
+//
 
 //
