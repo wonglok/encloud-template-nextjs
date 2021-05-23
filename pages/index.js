@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { ENRuntime } from "../pages-code/ENCloud/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
-let makeBatteries = () => {
+let loadBattriesInFolder = () => {
   let enBatteries = [];
   let reqq = require.context("../pages-code/ENBatteries/", true, /\.js$/);
   let keys = reqq.keys();
@@ -14,7 +14,7 @@ let makeBatteries = () => {
   return enBatteries;
 };
 
-let getProjectJSON = () => {
+let loadProjectJSON = () => {
   return {
     published: true,
     displayName: "encloud-template-nextjs",
@@ -34,8 +34,8 @@ function EffectNode() {
   let three = useThree();
   useEffect(() => {
     let enRunTime = new ENRuntime({
-      projectJSON: getProjectJSON(),
-      enBatteries: makeBatteries(),
+      projectJSON: loadProjectJSON(),
+      enBatteries: loadBattriesInFolder(),
       userData: {
         ...three,
       },
