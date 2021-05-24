@@ -182,49 +182,49 @@ export const CylinderInfo = ({
       //   return spherical(r, phi, theta);
       // }
 
-      vec3 spherical (float r, float phi, float theta) {
-        return vec3(
-          r * cos(phi) * cos(theta),
-          r * cos(phi) * sin(theta),
-          r * sin(phi)
-        );
-      }
-
-      vec3 sample (float t) {
-        float beta = t * MY_PI;
-
-        float r = sin(beta * 1.0) * 6.75;
-        float phi = sin(beta * 6.0 + sin(time * 0.1));
-        float theta = 4.0 * beta;
-
-        return spherical(r, phi, theta);
-      }
+      // vec3 spherical (float r, float phi, float theta) {
+      //   return vec3(
+      //     r * cos(phi) * cos(theta),
+      //     r * cos(phi) * sin(theta),
+      //     r * sin(phi)
+      //   );
+      // }
 
       // vec3 sample (float t) {
-      //   vec3 pos = vec3((t) * 2500.0);
-      //   float pX = pos.x;
-      //   float pY = pos.y;
-      //   float pZ = pos.y;
-      //   float piz = 0.001 * 2.0 * 3.14159265;
+      //   float beta = t * MY_PI;
 
-      //   pos.xyz = rotateQ(normalize(vec3(1.0, pY * piz, 1.0)), time + pY * piz) * rotateY(time + pZ * piz) * pos.xyz;
-      //   pos.xyz = rotateQ(normalize(vec3(1.0, pZ * piz, 1.0)), time + pY * piz) * rotateZ(time + pZ * piz) * pos.xyz;
-      //   pos.xyz = rotateQ(normalize(vec3(1.0, pZ * piz, 1.0)), time + pX * piz) * rotateY(time + pY * piz) * pos.xyz;
+      //   float r = sin(beta * 1.0) * 6.75;
+      //   float phi = sin(beta * 6.0 + sin(time * 0.1));
+      //   float theta = 4.0 * beta;
 
-      //   // pos.z += sin(time  + pX * piz * 0.333) * pos.y;
-
-      //   pos.xyz *= 0.00055;
-
-      //   float ttTime = time * 0.5;
-
-      //   pos.xyz *= rotateX(length(pos.xyz) + ttTime);
-      //   pos.xyz *= rotateY(length(pos.xyz) + ttTime);
-      //   pos.xyz *= rotateZ(length(pos.xyz) + ttTime);
-
-      //   pos.xyz += ballify(pos.xyz, length(pos.xyz) * 0.25 + 0.75 * length(pos.xyz) * sin(ttTime));
-
-      //   return pos.xyz;
+      //   return spherical(r, phi, theta);
       // }
+
+      vec3 sample (float t) {
+        vec3 pos = vec3((t) * 2500.0);
+        float pX = pos.x;
+        float pY = pos.y;
+        float pZ = pos.y;
+        float piz = 0.001 * 2.0 * 3.14159265;
+
+        pos.xyz = rotateQ(normalize(vec3(1.0, pY * piz, 1.0)), time + pY * piz) * rotateY(time + pZ * piz) * pos.xyz;
+        pos.xyz = rotateQ(normalize(vec3(1.0, pZ * piz, 1.0)), time + pY * piz) * rotateZ(time + pZ * piz) * pos.xyz;
+        pos.xyz = rotateQ(normalize(vec3(1.0, pZ * piz, 1.0)), time + pX * piz) * rotateY(time + pY * piz) * pos.xyz;
+
+        // pos.z += sin(time  + pX * piz * 0.333) * pos.y;
+
+        pos.xyz *= 0.00055;
+
+        float ttTime = time * 0.5;
+
+        pos.xyz *= rotateX(length(pos.xyz) + ttTime);
+        pos.xyz *= rotateY(length(pos.xyz) + ttTime);
+        pos.xyz *= rotateZ(length(pos.xyz) + ttTime);
+
+        pos.xyz += ballify(pos.xyz, length(pos.xyz) * 0.25 + 0.75 * length(pos.xyz) * sin(ttTime));
+
+        return pos.xyz;
+      }
     `,
 
     builtInVertexHeader: `
@@ -255,24 +255,24 @@ export const CylinderInfo = ({
 
     getMatCapUV: `
 
-    vec2 getMatCapUV (vec3 vViewPosition, vec3 vNormal) {
-      vec3 viewDir = normalize( vViewPosition );
-      vec3 x = normalize( vec3( viewDir.z, 0.0, - viewDir.x ) );
-      vec3 y = cross( viewDir, x );
-      vec2 smoothUV = vec2( dot( x, vNormal ), dot( y, vNormal ) ) * 0.495 + 0.5; // 0.495 to remove artifacts caused by undersized matcap disks
-      return smoothUV;
-    }
+      vec2 getMatCapUV (vec3 vViewPosition, vec3 vNormal) {
+        vec3 viewDir = normalize( vViewPosition );
+        vec3 x = normalize( vec3( viewDir.z, 0.0, - viewDir.x ) );
+        vec3 y = cross( viewDir, x );
+        vec2 smoothUV = vec2( dot( x, vNormal ), dot( y, vNormal ) ) * 0.495 + 0.5; // 0.495 to remove artifacts caused by undersized matcap disks
+        return smoothUV;
+      }
 
 
     `,
 
     createTubeInfo: `
-      struct CurveTubeInfo {
+      struct TubeGeo {
         vec3 position;
         vec3 normal;
       };
 
-      CurveTubeInfo createTubeInfo (float t, vec2 volume) {
+      TubeGeo createTubeInfo (float t, vec2 volume) {
         // find next sample along curve
         float nextT = t + (1.0 / subdivisions);
 
@@ -292,7 +292,7 @@ export const CylinderInfo = ({
 
         // compute position and normal
 
-        CurveTubeInfo info;
+        TubeGeo info;
         info.normal = normalize(B * circX + N * circY);
         info.position = cur + B * volume.x * circX + N * volume.y * circY;
 
@@ -306,6 +306,7 @@ export const CylinderInfo = ({
     matcapTexture: {
       value: new TextureLoader().load("/matcap/golden2.png"),
     },
+    subdivisions: { value: subdivisions },
     time: { value: 0 },
   };
 
@@ -331,10 +332,10 @@ export const CylinderInfo = ({
 
       void main (void) {
         float t = (line);
-        vec2 volume = vec2(0.03 * abs(sin(time + line * 3.141592)));
-        CurveTubeInfo tube = createTubeInfo(t, volume);
+        vec2 volume = vec2(0.01 * (1.0 - line));
+        TubeGeo tube = createTubeInfo(t, volume);
 
-        mat4 flowerSpread = rotationZ(4.0 * offset.x * MY_PI * 2.0);
+        mat4 flowerSpread = rotationZ(0.3 * offset.x * MY_PI * 2.0);
         vec4 newObjPos = flowerSpread * vec4(tube.position, 1.0);
         vec4 mvPosition = modelViewMatrix * newObjPos;
         gl_Position = projectionMatrix * mvPosition;

@@ -20,6 +20,6 @@ export const effect = async (node) => {
   });
 
   node.onLoop((tt, dt) => {
-    info.preview.material.uniforms.time.value += dt;
+    info.preview.material.uniforms.time.value = tt;
   });
 };
