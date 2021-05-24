@@ -1,13 +1,10 @@
-import { FolderName } from "./index.js";
-export const title = `${FolderName}.cylinder`;
+import { FolderName } from ".";
 import {
-  BoxBufferGeometry,
   BufferAttribute,
   CylinderGeometry,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   Mesh,
-  MeshStandardMaterial,
   RawShaderMaterial,
   TextureLoader,
   Vector2,
@@ -15,11 +12,10 @@ import {
 import { Geometry } from "three-stdlib/deprecated/Geometry";
 import * as GLSLTools from "./utils/utils.js";
 
+export const title = `${FolderName}.cylinder`;
 export const effect = async (node) => {
   let { scene, camera, renderer, raycaster, mouse } = node.userData;
 };
-
-//
 
 export const CylinderInfo = ({
   count = 100,
@@ -73,7 +69,8 @@ export const CylinderInfo = ({
       angles.push(angle);
 
       // "arc length" in range [-0.5 .. 0.5]
-      xPositions.push(v.x);
+      // "arc length" in range [0.0 .. 1.0]
+      xPositions.push(v.x + 0.5);
 
       v3Positions.push(v.x, v.y, v.z);
 
@@ -143,18 +140,12 @@ export const CylinderInfo = ({
     uniforms: /* glsl */ `
       // uniforms
       uniform float time;
-      uniform float thickness;
-      uniform float spread;
+
+      uniform float subdivisions;
     `,
 
     sampler: /* glsl */ `
-      vec3 spherical (float r, float phi, float theta) {
-        return vec3(
-          r * cos(phi) * cos(theta),
-          r * cos(phi) * sin(theta),
-          r * sin(phi)
-        );
-      }
+
 
       // line
       // vec3 sample (float t) {
@@ -191,6 +182,14 @@ export const CylinderInfo = ({
       //   return spherical(r, phi, theta);
       // }
 
+      vec3 spherical (float r, float phi, float theta) {
+        return vec3(
+          r * cos(phi) * cos(theta),
+          r * cos(phi) * sin(theta),
+          r * sin(phi)
+        );
+      }
+
       vec3 sample (float t) {
         float beta = t * MY_PI;
 
@@ -202,7 +201,7 @@ export const CylinderInfo = ({
       }
 
       // vec3 sample (float t) {
-      //   vec3 pos = vec3((t - 0.5) * 2500.0);
+      //   vec3 pos = vec3((t) * 2500.0);
       //   float pX = pos.x;
       //   float pY = pos.y;
       //   float pZ = pos.y;
@@ -226,7 +225,6 @@ export const CylinderInfo = ({
 
       //   return pos.xyz;
       // }
-
     `,
 
     builtInVertexHeader: `
@@ -268,21 +266,43 @@ export const CylinderInfo = ({
 
     `,
 
-    makeMatcapFrag: ({ textureName = "matcapTexture" }) => `
-      uniform sampler2D ${textureName};
+    createTubeInfo: `
+      struct CurveTubeInfo {
+        vec3 position;
+        vec3 normal;
+      };
 
-      vec4 makeMatcapFrag (vec3 vViewPosition, vec3 vNormal) {
+      CurveTubeInfo createTubeInfo (float t, vec2 volume) {
+        // find next sample along curve
+        float nextT = t + (1.0 / subdivisions);
 
-        return color;
+        // sample the curve in two places
+        vec3 cur = sample(t);
+        vec3 next = sample(nextT);
+
+        // compute the Frenet-Serret frame
+        vec3 T = normalize(next - cur);
+        vec3 B = normalize(cross(T, next + cur));
+        vec3 N = -normalize(cross(B, T));
+
+        // extrude outward to create a tube
+        float tubeAngle = angle;
+        float circX = cos(tubeAngle);
+        float circY = sin(tubeAngle);
+
+        // compute position and normal
+
+        CurveTubeInfo info;
+        info.normal = normalize(B * circX + N * circY);
+        info.position = cur + B * volume.x * circX + N * volume.y * circY;
+
+        return info;
       }
     `,
   };
 
   let uniforms = {
     baseOpacity: { value: 1 },
-
-    thickness: { value: 0.01 },
-    spread: { value: 20.03 },
     matcapTexture: {
       value: new TextureLoader().load("/matcap/golden2.png"),
     },
@@ -290,9 +310,6 @@ export const CylinderInfo = ({
   };
 
   const lineMat = new RawShaderMaterial({
-    defines: {
-      lengthSegments: subdivisions.toFixed(1),
-    },
     transparent: true,
     uniforms,
     vertexShader: /* glsl */ `
@@ -310,67 +327,34 @@ export const CylinderInfo = ({
 
       ${provideGLSL.varyings}
 
-      struct TubeInfo {
-        vec3 position;
-        vec3 normal;
-      };
-
-      void createTube (float t, vec2 volume, out vec3 pos, out vec3 normal) {
-        // find next sample along curve
-        float nextT = t + (1.0 / lengthSegments);
-
-        // sample the curve in two places
-        vec3 cur = sample(t);
-        vec3 next = sample(nextT);
-
-        // compute the Frenet-Serret frame
-        vec3 T = normalize(next - cur);
-        vec3 B = normalize(cross(T, next + cur));
-        vec3 N = -normalize(cross(B, T));
-
-        // extrude outward to create a tube
-        float tubeAngle = angle;
-        float circX = cos(tubeAngle);
-        float circY = sin(tubeAngle);
-
-        // compute position and normal
-        normal.xyz = normalize(B * circX + N * circY);
-        pos.xyz = cur + B * volume.x * circX + N * volume.y * circY;
-      }
+      ${provideGLSL.createTubeInfo}
 
       void main (void) {
-        mat4 flowerSpread = rotationZ(spread * 4.0 * offset.x * MY_PI * 2.0);
+        float t = (line);
+        vec2 volume = vec2(0.03 * abs(sin(time + line * 3.141592)));
+        CurveTubeInfo tube = createTubeInfo(t, volume);
 
-        float t = (line + 0.5);
-        vec2 volume = vec2((0.5 - line) * 0.03);
-
-        vec3 transformed;
-        vec3 objectNormal;
-        createTube(t, volume, transformed, objectNormal);
-
-        vec4 newObjPos = flowerSpread * vec4(transformed, 1.0);
-
+        mat4 flowerSpread = rotationZ(4.0 * offset.x * MY_PI * 2.0);
+        vec4 newObjPos = flowerSpread * vec4(tube.position, 1.0);
         vec4 mvPosition = modelViewMatrix * newObjPos;
-        vViewPosition = -mvPosition.xyz;
         gl_Position = projectionMatrix * mvPosition;
 
-        // pass the normal and UV along
-        vec3 transformedNormal = normalMatrix * objectNormal;
+        vec3 transformedNormal = normalMatrix * tube.normal;
         vNormal = normalize(transformedNormal);
+        vViewPosition = -mvPosition.xyz;
       }
+      //
     `.trim(),
 
     fragmentShader: /* glsl */ `
       ${provideGLSL.precisionHigh}
       ${provideGLSL.varyings}
-
       ${provideGLSL.getMatCapUV}
 
       uniform float baseOpacity;
       uniform sampler2D matcapTexture;
 
       void main (void) {
-
         vec2 uv = getMatCapUV(vViewPosition, vNormal);
         vec4 color = texture2D(matcapTexture, uv);
 

@@ -28,8 +28,6 @@ export const effect = async (node) => {
   mesh.scale.z = 0.5;
   mesh.scale.multiplyScalar(0.33);
 
-  mesh.visible = false;
-
   node.onLoop((t, dt) => {
     mesh.rotation.y += Math.sin(t * 3) * dt * Math.PI * 2.0;
   });

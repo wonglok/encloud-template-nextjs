@@ -29,7 +29,6 @@ export const effect = async (node) => {
   geo.rotateX(-Math.PI * 0.35);
 
   let mesh = new Mesh(geo, mat);
-  mesh.visible = false;
 
   scene.add(mesh);
   node.onClean(() => {
