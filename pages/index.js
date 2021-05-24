@@ -28,6 +28,8 @@ let loadBattriesInFolder = () => {
   keys.forEach((key) => {
     enBatteries.push(reqq(key));
   });
+
+  //
   return enBatteries;
 };
 
@@ -37,9 +39,11 @@ function EffectNode({ projectJSON }) {
     let enRunTime = new ENRuntime({
       projectJSON: projectJSON,
       enBatteries: loadBattriesInFolder(),
-      userData: {
-        ...three,
-      },
+      userData: {},
+    });
+
+    Object.entries(three).forEach(([key, value]) => {
+      enRunTime.mini.set(key, value);
     });
 
     return () => {
