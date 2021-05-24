@@ -76,13 +76,13 @@ export class ENRuntime {
 
       if (Signatures.last !== Signatures.now) {
         Signatures.last = Signatures.now;
-        window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+        window.dispatchEvent(new CustomEvent("remake-graph"));
       }
       Signatures.now = getSignature();
     };
 
     let handleOnSave = () => {
-      window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+      window.dispatchEvent(new CustomEvent("remake-graph"));
     };
 
     window.addEventListener("on-save", handleOnSave, false);
@@ -121,9 +121,9 @@ export class ENRuntime {
       // }, 1000);
     };
 
-    window.addEventListener("hot-swap-graph", handleSwap, false);
+    window.addEventListener("remake-graph", handleSwap, false);
     this.mini.onClean(() => {
-      window.removeEventListener("hot-swap-graph", handleSwap);
+      window.removeEventListener("remake-graph", handleSwap);
     });
 
     let makePicker = (moduleTitle) => {
@@ -204,7 +204,7 @@ export class ENRuntime {
       rAFID = requestAnimationFrame(rAF);
     }
 
-    window.dispatchEvent(new CustomEvent("hot-swap-graph"));
+    window.dispatchEvent(new CustomEvent("remake-graph"));
 
     return this;
   }
@@ -241,13 +241,13 @@ export class CodeRuntime {
       });
     });
 
+    let queue = [];
     blockers.forEach((b) => {
       //
       let uFunc = parent.enBatteries.find((f) => f.title === b.title);
       let portsAPIMap = new Map();
 
       let mode = "queue";
-      let queue = [];
 
       this.mini.ready["ready-all"].then(() => {
         mode = "can-send";
@@ -319,6 +319,16 @@ export class CodeRuntime {
           },
           onLoop: (v) => {
             runtime.mini.onLoop(v);
+          },
+
+          // getter
+          ready: runtime.mini.ready,
+          now: runtime.mini.now,
+
+          //
+          env: {
+            get: runtime.mini.get,
+            set: runtime.mini.set,
           },
           runtime: runtime,
           graphEngine: runtime.mini,
