@@ -102,13 +102,9 @@ export const CylinderInfo = ({
   lineGeo.setAttribute("uv", new BufferAttribute(uvArray, 2));
 
   let offsets = [];
-  let ddxyz = Math.ceil(Math.pow(count, 1));
+  let ddxyz = count;
   for (let z = 0; z < ddxyz; z++) {
-    for (let y = 0; y < ddxyz; y++) {
-      for (let x = 0; x < ddxyz; x++) {
-        offsets.push(x / ddxyz, y / ddxyz, z / ddxyz);
-      }
-    }
+    offsets.push(z / ddxyz, z / ddxyz, z / ddxyz);
   }
 
   // for (let i = 0; i < this.parent.ctrlPts; i++) {
@@ -332,10 +328,10 @@ export const CylinderInfo = ({
 
       void main (void) {
         float t = (line);
-        vec2 volume = vec2(0.01 * (1.0 - line));
+        vec2 volume = vec2(0.05 * (1.0 - line));
         TubeGeo tube = createTubeInfo(t, volume);
 
-        mat4 flowerSpread = rotationZ(0.3 * offset.x * MY_PI * 2.0);
+        mat4 flowerSpread = rotationZ(0.25 * offset.x * MY_PI * 2.0);
         vec4 newObjPos = flowerSpread * vec4(tube.position, 1.0);
         vec4 mvPosition = modelViewMatrix * newObjPos;
         gl_Position = projectionMatrix * mvPosition;
@@ -349,6 +345,7 @@ export const CylinderInfo = ({
 
     fragmentShader: /* glsl */ `
       ${provideGLSL.precisionHigh}
+
       ${provideGLSL.varyings}
       ${provideGLSL.getMatCapUV}
 
@@ -368,3 +365,5 @@ export const CylinderInfo = ({
   info.preview = new Mesh(lineGeo, lineMat);
   return info;
 };
+
+//

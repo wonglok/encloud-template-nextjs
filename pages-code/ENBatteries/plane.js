@@ -1,4 +1,5 @@
 import {
+  AdditiveBlending,
   Color,
   DoubleSide,
   Mesh,
@@ -17,7 +18,6 @@ export const effect = async (node) => {
     roughness: 0.4,
     transparent: true,
     opacity: 0.5,
-    flatShading: true,
     side: DoubleSide,
   });
 

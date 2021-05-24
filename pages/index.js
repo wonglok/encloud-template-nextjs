@@ -31,11 +31,11 @@ let loadBattriesInFolder = () => {
   return enBatteries;
 };
 
-function EffectNode({ buildTimeCache }) {
+function EffectNode({ projectJSON }) {
   let three = useThree();
   useEffect(() => {
     let enRunTime = new ENRuntime({
-      projectJSON: buildTimeCache || getProjectJSON(),
+      projectJSON: projectJSON,
       enBatteries: loadBattriesInFolder(),
       userData: {
         ...three,
@@ -86,7 +86,9 @@ export default function Home({ buildTimeCache }) {
 
       <Canvas>
         {/*  */}
-        <EffectNode buildTimeCache={buildTimeCache}></EffectNode>
+        <EffectNode
+          projectJSON={buildTimeCache || getProjectJSON()}
+        ></EffectNode>
 
         {/*  */}
         <directionalLight
