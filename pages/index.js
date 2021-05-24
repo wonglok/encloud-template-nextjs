@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { ENRuntime, BASEURL_REST } from "../pages-code/ENCloudSDK/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
 
-let getFallBackProjectJSON = () => {
+let getProjectJSON = () => {
   return {
     published: true,
     displayName: "encloud-template-nextjs",
@@ -35,7 +35,7 @@ function EffectNode({ buildTimeCache }) {
   let three = useThree();
   useEffect(() => {
     let enRunTime = new ENRuntime({
-      projectJSON: buildTimeCache || getFallBackProjectJSON(),
+      projectJSON: buildTimeCache || getProjectJSON(),
       enBatteries: loadBattriesInFolder(),
       userData: {
         ...three,
@@ -53,7 +53,7 @@ function EffectNode({ buildTimeCache }) {
 //
 
 export async function getStaticProps(context) {
-  let project = getFallBackProjectJSON();
+  let project = getProjectJSON();
   let projectID = project._id;
   let buildTimeCache = await fetch(
     `${BASEURL_REST}/project?action=get-one-of-published`,
