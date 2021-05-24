@@ -29,7 +29,7 @@ export const effect = async (node) => {
   mesh.scale.multiplyScalar(0.33);
 
   node.onLoop((t, dt) => {
-    mesh.rotation.x += Math.sin(t * 3) * dt * 3;
+    mesh.rotation.y += Math.sin(t * 3) * dt * Math.PI * 2.0;
   });
 
   scene.add(mesh);

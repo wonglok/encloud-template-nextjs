@@ -50,8 +50,6 @@ function EffectNode({ buildTimeCache }) {
   return <group></group>;
 }
 
-//
-
 export async function getStaticProps(context) {
   let project = getProjectJSON();
   let projectID = project._id;
