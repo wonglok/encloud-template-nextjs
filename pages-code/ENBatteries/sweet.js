@@ -23,9 +23,9 @@ export const effect = async (node) => {
     side: DoubleSide,
   });
 
-  // node.pickers.appSettings.color2.stream((value) => {
-  //   mat.color.setStyle(value);
-  // });
+  //   node.pickers.appSettings.color2.stream((value) => {
+  //     mat.color.setStyle(value);
+  //   });
 
   let geo = new SphereBufferGeometry(1, 32, 32);
   let mesh = new Mesh(geo, mat);
