@@ -7,7 +7,8 @@ import {
   PlaneBufferGeometry,
 } from "three";
 
-export const title = "plane";
+import { FolderName } from ".";
+export const title = `${FolderName}.plane`;
 
 export const effect = async (node) => {
   let scene = await node.ready.scene;

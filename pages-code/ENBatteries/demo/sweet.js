@@ -7,7 +7,8 @@ import {
   Vector3,
 } from "three";
 
-export const title = "sweet";
+import { FolderName } from ".";
+export const title = `${FolderName}.plane`;
 
 export const effect = async (node) => {
   let scene = await node.ready.scene;

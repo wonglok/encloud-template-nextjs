@@ -1,4 +1,3 @@
-import { FolderName } from ".";
 import {
   BufferAttribute,
   CylinderGeometry,
@@ -11,7 +10,7 @@ import {
 } from "three";
 import { Geometry } from "three-stdlib/deprecated/Geometry";
 import * as GLSLTools from "./utils/utils.js";
-
+import { FolderName } from ".";
 export const title = `${FolderName}.cylinder`;
 export const effect = async (node) => {
   let scene = await node.ready.scene;
