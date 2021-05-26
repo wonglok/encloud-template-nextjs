@@ -31,7 +31,7 @@ export const effect = async (node) => {
   //   });
 
   let geo = new PlaneBufferGeometry(3, 3);
-  geo.rotateX(-Math.PI * 0.35);
+  // geo.rotateX(-Math.PI * 0.35);
 
   let mesh = new Mesh(geo, mat);
 

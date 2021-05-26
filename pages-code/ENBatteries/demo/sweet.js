@@ -8,7 +8,7 @@ import {
 } from "three";
 
 import { FolderName } from ".";
-export const title = `${FolderName}.plane`;
+export const title = `${FolderName}.sweet`;
 
 export const effect = async (node) => {
   let scene = await node.ready.scene;
