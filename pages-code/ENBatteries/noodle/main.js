@@ -19,10 +19,6 @@ export const effect = async (node) => {
   let raycaster = await node.ready.raycaster;
   let mouse = await node.ready.mouse;
 
-  //
-  //
-  //
-  //
   let o3d = new Object3D();
   scene.add(o3d);
 
@@ -32,10 +28,10 @@ export const effect = async (node) => {
       node.onLoop(v);
     },
     pathVec3: [
-      new Vector3(0, 0, 0),
-      new Vector3(0, 1, 0),
-      new Vector3(0, 2, 0),
-      new Vector3(0, 3, 0),
+      new Vector3(1, 0, 0),
+      new Vector3(-1, 1, 0),
+      new Vector3(1, -1, 0),
+      new Vector3(-1, 0, 0),
     ],
   });
   node.onClean(() => {
