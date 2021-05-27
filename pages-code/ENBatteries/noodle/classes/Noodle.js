@@ -23,7 +23,7 @@ export class Noodle {
     this.onLoop = onLoop;
     this.o3d = o3d;
     this.qualityFactor = 2;
-    this.amountFactor = 150;
+    this.amountFactor = 100;
     this.noiseLevel = 1.0;
     this.cylinderSides = 3 * this.qualityFactor;
     this.segments = 12 * this.qualityFactor;
@@ -630,7 +630,7 @@ export class Noodle {
           uniform vec3 baseColor;
 
           void main (void) {
-            gl_FragColor = vec4(baseColor, 0.5 * vT);
+            gl_FragColor = vec4(baseColor, 0.7 * vT);
           }
         `,
         defines: {
@@ -653,7 +653,7 @@ export class Noodle {
           uniform vec3 baseColor;
 
           void main (void) {
-            gl_FragColor = vec4(baseColor, 0.5);
+            gl_FragColor = vec4(baseColor, 0.7);
           }
         `,
         defines: {
