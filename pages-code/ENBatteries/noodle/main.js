@@ -1,12 +1,4 @@
-import {
-  Color,
-  DoubleSide,
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  SphereBufferGeometry,
-  Vector3,
-} from "three";
+import { Object3D, Vector3 } from "three";
 
 import { FolderName } from ".";
 import { Noodle } from "./classes/Noodle";
@@ -34,6 +26,8 @@ export const effect = async (node) => {
       new Vector3(-1, 0, 0),
     ],
   });
+
+  //
   node.onClean(() => {
     noodle.cleanUpScene();
   });

@@ -14,13 +14,13 @@ import {
   Vector2,
   Vector3,
 } from "three";
-import { Geometry } from "three-stdlib";
+import { Geometry, SimplexNoise } from "three-stdlib";
 import { enableBloom } from "../../../Bloom/Bloom";
 
 export class Noodle {
   constructor({ o3d, onLoop, pathVec3 }) {
     this.pathVec3 = pathVec3;
-    this.momoScale = 4.0;
+    this.momoScale = 1.0;
     this.group = new Object3D();
     this.onLoop = onLoop;
     this.o3d = o3d;
@@ -218,47 +218,30 @@ export class Noodle {
     let ctrlPts = this.ctrlPts;
     let openEnded = false;
 
-    // let sine = val => Math.sin(val * Math.PI * 2.0)
-    // let cosine = val => Math.cos(val * Math.PI * 2.0)
-    // let rVal = () => 0.75 * (Math.random() - 0.5)
-    // let radius = val => val * 10 + 2
+    // var simplex = new SimplexNoise();
+    // let curve = new CatmullRomCurve3(this.pathVec3, false);
 
-    // let sphereV3 = new Vector3(0, 0, 0)
-    // let cylinder = new Vector3(0, 0, 0);
-
-    let curve = new CatmullRomCurve3(this.pathVec3, false);
-
-    let temp = new Vector3();
+    // let tempCtrlPts = new Vector3();
+    // let tempLines = new Vector3();
+    let out = new Vector3();
+    let half = (v) => v - 0.5;
+    let rr = () => Math.random() - 0.5;
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
         for (let i = 0; i < ctrlPts; i++) {
           let ee = eachLine / count;
           let cp = i / ctrlPts;
 
-          curve.getPointAt(((ee + cp) / 2) % 1, temp);
+          out.set(
+            //
+            15.0 * rr(),
+            //
+            15.0 * rr(),
+            //
+            15.0 * rr()
+          );
 
-          temp.x += (Math.random() - 0.5) * 50;
-          temp.y += (Math.random() - 0.5) * 50;
-          temp.z += (Math.random() - 0.5) * 50;
-
-          temp.z *= 2.5;
-
-          // let xx = radius(cp) * (sine(ee) * sine(ee) - 0.5) + rVal()
-          // let yy = radius(cp) * (cosine(ee) * sine(ee)) + rVal()
-          // let zz = (cp - 0.5) * 10.;// + (cp) * 20.0
-
-          // let rr = 2 + 1.5 * Math.random();
-          // let angle =
-          //   (ee * Math.PI * 2.0 +
-          //     cp * Math.PI * 1.0 +
-          //     (1.0 - cp) * 1.4 * Math.PI * 2.0) *
-          //     2.0 +
-          //   0.5 * Math.random() * this.noiseLevel;
-          // let hh = Math.random() * 2.3 * this.noiseLevel * 0.5;
-          // cylinder.setFromCylindricalCoords(rr, angle, hh);
-          // cylinder.multiplyScalar(50);
-
-          this[`controlPoint${i}`].push(temp.x, temp.y, temp.z);
+          this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
       }
     };
