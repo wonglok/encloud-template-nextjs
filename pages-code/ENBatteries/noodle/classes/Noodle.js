@@ -258,6 +258,7 @@ export class Noodle {
     };
 
     let dir = new Vector3();
+    let yaxis = new Vector3(0, 0, 1);
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
         for (let i = 0; i < ctrlPts; i++) {
@@ -284,6 +285,7 @@ export class Noodle {
           euler.x = dir.x;
           euler.y = dir.y;
           euler.z = dir.z;
+          out.applyAxisAngle(yaxis, cp * 100.0);
           out.applyEuler(euler);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
