@@ -4,6 +4,7 @@ import {
   Color,
   CylinderGeometry,
   DoubleSide,
+  Euler,
   IcosahedronBufferGeometry,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
@@ -14,7 +15,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
-import { Geometry, SimplexNoise } from "three-stdlib";
+import { Geometry } from "three-stdlib";
 import { enableBloom } from "../../../Bloom/Bloom";
 
 export class Noodle {
@@ -239,14 +240,28 @@ export class Noodle {
     ];
     let curve = new CatmullRomCurve3(path3, true);
 
-    // let tempCtrlPts = new Vector3();
-    // let tempLines = new Vector3();
     let out = new Vector3();
-    let rr = () => Math.random() - 0.5;
+    let euler = new Euler();
+
+    let radius = (ee, type) => {
+      ee = ee * Math.PI;
+      let rr = 0.5;
+      if (type === "x") {
+        return rr * Math.sin(ee) * Math.cos(ee) - 0.5;
+      }
+      if (type === "z") {
+        return rr * Math.sin(ee) * Math.sin(ee);
+      }
+      if (type === "y") {
+        return ee * 0.0;
+      }
+    };
+
+    let dir = new Vector3();
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
         for (let i = 0; i < ctrlPts; i++) {
-          // let ee = eachLine / count;
+          let ee = eachLine / count;
           let cp = i / ctrlPts;
 
           curve.getPointAt((cp * 1.5) % 1, out);
@@ -254,9 +269,22 @@ export class Noodle {
           // out.applyAxisAngle(new Vector3(1, 0, 0), Math.PI * -0.5);
           // out.multiplyScalar(100);
 
-          out.x += this.momoRandomNess * rr();
-          out.y += this.momoRandomNess * rr();
-          out.z += this.momoRandomNess * rr();
+          dir
+            .set(0, 0, 0)
+            .subVectors(
+              curve.getPointAt((cp * 1.5 + 0.0) % 1),
+              curve.getPointAt((cp * 1.5 + 0.01) % 1)
+            )
+            .normalize();
+
+          out.x += this.momoRandomNess * radius(ee, "x");
+          out.y += this.momoRandomNess * radius(ee, "y");
+          out.z += this.momoRandomNess * radius(ee, "z");
+
+          euler.x = dir.x;
+          euler.y = dir.y;
+          euler.z = dir.z;
+          out.applyEuler(euler);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
@@ -704,7 +732,7 @@ export class Noodle {
     let inc = 0;
     // let pulseValiue = 1;
     this.onLoop(() => {
-      inc += (1000 / 60) * 0.00002;
+      inc += (1000 / 60) * 0.000035;
       this.lanCurve.material.uniforms.linearProgress.value = inc % 1;
       this.lanBall.material.uniforms.linearProgress.value = inc % 1;
     });
