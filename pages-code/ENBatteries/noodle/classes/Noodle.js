@@ -24,13 +24,12 @@ export class Noodle {
     this.onLoop = onLoop;
     this.o3d = o3d;
     this.qualityFactor = 2;
-    this.amountFactor = 100;
+    this.amountFactor = 300;
     this.noiseLevel = 1.0;
     this.cylinderSides = 3 * this.qualityFactor;
     this.segments = 12 * this.qualityFactor;
     this.ctrlPts = 8;
     this.restartDelay = 0;
-    this.duration = 4.125 * 3; // seconds
 
     this.inverseScaleForFloatingPts = 20.0;
     this.momoRandomNess = 4.0 * this.inverseScaleForFloatingPts;
@@ -258,7 +257,7 @@ export class Noodle {
     };
 
     let dir = new Vector3();
-    let yaxis = new Vector3(0, 0, 1);
+    let yaxis = new Vector3(1, 1, 1);
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
         for (let i = 0; i < ctrlPts; i++) {
@@ -286,7 +285,7 @@ export class Noodle {
           euler.y = dir.y;
           euler.z = dir.z;
           out.applyEuler(euler);
-          out.applyAxisAngle(yaxis, ee * 10.0);
+          out.applyAxisAngle(dir, (ee + cp) * 10.0);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
