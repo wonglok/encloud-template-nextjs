@@ -242,7 +242,6 @@ export class Noodle {
     // let tempCtrlPts = new Vector3();
     // let tempLines = new Vector3();
     let out = new Vector3();
-    let half = (v) => v - 0.5;
     let rr = () => Math.random() - 0.5;
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
@@ -250,7 +249,7 @@ export class Noodle {
           // let ee = eachLine / count;
           let cp = i / ctrlPts;
 
-          curve.getPointAt(cp, out);
+          curve.getPointAt((cp * 1.5) % 1, out);
 
           // out.applyAxisAngle(new Vector3(1, 0, 0), Math.PI * -0.5);
           // out.multiplyScalar(100);
@@ -258,10 +257,6 @@ export class Noodle {
           out.x += this.momoRandomNess * rr();
           out.y += this.momoRandomNess * rr();
           out.z += this.momoRandomNess * rr();
-
-          // out.x = Math.floor(out.x);
-          // out.y = Math.floor(out.y);
-          // out.z = Math.floor(out.z);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
