@@ -19,12 +19,6 @@ export const effect = async (node) => {
     onLoop: (v) => {
       node.onLoop(v);
     },
-    pathVec3: [
-      new Vector3(1, 0, 0),
-      new Vector3(-1, 1, 0),
-      new Vector3(1, -1, 0),
-      new Vector3(-1, 0, 0),
-    ],
   });
 
   //

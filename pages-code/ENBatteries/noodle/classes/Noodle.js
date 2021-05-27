@@ -18,22 +18,27 @@ import { Geometry, SimplexNoise } from "three-stdlib";
 import { enableBloom } from "../../../Bloom/Bloom";
 
 export class Noodle {
-  constructor({ o3d, onLoop, pathVec3 }) {
-    this.pathVec3 = pathVec3;
-    this.momoScale = 1.0;
+  constructor({ o3d, onLoop }) {
     this.group = new Object3D();
     this.onLoop = onLoop;
     this.o3d = o3d;
     this.qualityFactor = 2;
-    this.scaleFactor = 5;
-    this.amountFactor = 100;
+    this.amountFactor = 150;
     this.noiseLevel = 1.0;
     this.cylinderSides = 3 * this.qualityFactor;
     this.segments = 12 * this.qualityFactor;
-    this.ctrlPts = 9;
+    this.ctrlPts = 8;
     this.restartDelay = 0;
     this.duration = 4.125 * 3; // seconds
-    this.group.scale.set(2.5, 2.5, 2.5);
+
+    this.inverseScale = 20.0;
+    this.momoRandomNess = 4.0 * this.inverseScale;
+    this.momoScale = 0.8 * this.inverseScale;
+    this.group.scale.set(
+      1 / this.inverseScale,
+      1 / this.inverseScale,
+      1 / this.inverseScale
+    );
 
     for (let i = 0; i < this.ctrlPts; i++) {
       this[`controlPoint${i}`] = [];
@@ -218,8 +223,21 @@ export class Noodle {
     let ctrlPts = this.ctrlPts;
     let openEnded = false;
 
+    let THREE = {
+      Vector3,
+    };
+
     // var simplex = new SimplexNoise();
-    // let curve = new CatmullRomCurve3(this.pathVec3, false);
+    let path3 = [
+      new THREE.Vector3(58.231716067898276, 130.00434591238644, 0),
+      new THREE.Vector3(64.59504046367358, -51.65487370925905, 0),
+      new THREE.Vector3(-142.81325276047406, -95.53024592126917, 0),
+      new THREE.Vector3(-134.64885922794912, 62.15766800538029, 0),
+      new THREE.Vector3(-49.81632736411149, 65.64706142513052, 0),
+      new THREE.Vector3(149.9073305786189, 109.11130887538985, 0),
+      new THREE.Vector3(126.56621702904124, -41.51438990875761, 0),
+    ];
+    let curve = new CatmullRomCurve3(path3, true);
 
     // let tempCtrlPts = new Vector3();
     // let tempLines = new Vector3();
@@ -229,17 +247,21 @@ export class Noodle {
     let updateCtrlPts = () => {
       for (let eachLine = 0; eachLine < count; eachLine++) {
         for (let i = 0; i < ctrlPts; i++) {
-          let ee = eachLine / count;
+          // let ee = eachLine / count;
           let cp = i / ctrlPts;
 
-          out.set(
-            //
-            15.0 * rr(),
-            //
-            15.0 * rr(),
-            //
-            15.0 * rr()
-          );
+          curve.getPointAt(cp, out);
+
+          // out.applyAxisAngle(new Vector3(1, 0, 0), Math.PI * -0.5);
+          // out.multiplyScalar(100);
+
+          out.x += this.momoRandomNess * rr();
+          out.y += this.momoRandomNess * rr();
+          out.z += this.momoRandomNess * rr();
+
+          // out.x = Math.floor(out.x);
+          // out.y = Math.floor(out.y);
+          // out.z = Math.floor(out.z);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
