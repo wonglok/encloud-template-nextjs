@@ -52,7 +52,9 @@ export function Bloom() {
     } = require("three/examples/jsm/postprocessing/UnrealBloomPass.js");
     let unrealPass = new UnrealBloomPass(sizeV2, 1.5, 0.6, 0.5);
     unrealPass.renderToScreen = true;
-    unrealPass.strength = 1.0;
+    unrealPass.strength = 2.0;
+    unrealPass.threshold = 0.3;
+    unrealPass.radius = 1.0;
 
     let audio = ({ detail: { low, mid, high, texture } }) => {
       if (low !== 0) {
