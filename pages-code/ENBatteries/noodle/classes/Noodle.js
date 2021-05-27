@@ -24,7 +24,7 @@ export class Noodle {
     this.onLoop = onLoop;
     this.o3d = o3d;
     this.qualityFactor = 2;
-    this.amountFactor = 300;
+    this.amountFactor = 150;
     this.noiseLevel = 1.0;
     this.cylinderSides = 3 * this.qualityFactor;
     this.segments = 12 * this.qualityFactor;
@@ -237,6 +237,7 @@ export class Noodle {
       new THREE.Vector3(149.9073305786189, 109.11130887538985, 0),
       new THREE.Vector3(126.56621702904124, -41.51438990875761, 0),
     ];
+    path3.map((e) => e.multiplyScalar(Math.random()));
     let curve = new CatmullRomCurve3(path3, true);
 
     let out = new Vector3();
