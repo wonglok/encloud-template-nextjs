@@ -8,6 +8,7 @@ import {
 } from "three";
 
 import { FolderName } from ".";
+import { enableBloom } from "../../Bloom/Bloom";
 export const title = `${FolderName}.sweet`;
 
 export const effect = async (node) => {
@@ -32,6 +33,7 @@ export const effect = async (node) => {
   let mesh = new Mesh(geo, mat);
   mesh.scale.z = 0.5;
   mesh.scale.multiplyScalar(0.33);
+  enableBloom(mesh);
 
   node.onLoop((t, dt) => {
     mesh.rotation.y += Math.sin(t * 3) * dt * Math.PI * 2.0;
@@ -41,8 +43,6 @@ export const effect = async (node) => {
   node.onClean(() => {
     scene.remove(mesh);
   });
-
-  //
 
   let destination = new Vector3();
   node.in0.stream((ev) => {

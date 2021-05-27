@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useEffect } from "react";
 import { ENRuntime, BASEURL_REST } from "../pages-code/ENCloudSDK/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
+import { Bloom } from "../pages-code/Bloom/Bloom";
 
 let getProjectJSON = () => {
   return {
@@ -29,7 +30,6 @@ let loadBattriesInFolder = () => {
     enBatteries.push(reqq(key));
   });
 
-  //
   return enBatteries;
 };
 
@@ -105,6 +105,8 @@ export default function Home({ buildTimeCache }) {
 
         {/*  */}
         <EnvMap></EnvMap>
+
+        <Bloom></Bloom>
 
         {/* <Sphere position-x={-1} args={[1, 25, 25]}>
           <meshStandardMaterial
