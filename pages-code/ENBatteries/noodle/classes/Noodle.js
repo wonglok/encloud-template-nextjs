@@ -31,13 +31,13 @@ export class Noodle {
     this.restartDelay = 0;
     this.duration = 4.125 * 3; // seconds
 
-    this.inverseScale = 20.0;
-    this.momoRandomNess = 4.0 * this.inverseScale;
-    this.momoScale = 0.8 * this.inverseScale;
+    this.inverseScaleForFloatingPts = 20.0;
+    this.momoRandomNess = 4.0 * this.inverseScaleForFloatingPts;
+    this.momoScale = 0.8 * this.inverseScaleForFloatingPts;
     this.group.scale.set(
-      1 / this.inverseScale,
-      1 / this.inverseScale,
-      1 / this.inverseScale
+      1 / this.inverseScaleForFloatingPts,
+      1 / this.inverseScaleForFloatingPts,
+      1 / this.inverseScaleForFloatingPts
     );
 
     for (let i = 0; i < this.ctrlPts; i++) {
@@ -696,37 +696,24 @@ export class Noodle {
     enableBloom(lanCurve);
     enableBloom(lanBall);
 
-    // lanCurve.scale.set(1.0, 1.0, 1.0);
-    // lanCurve.layers.enable(3)
-    // lanCurve.layers.enable(4)
-    // lanCurve.userData.bloom = true
-
-    lanCurve.userData.bloom = true;
-    lanBall.userData.bloom = true;
-
-    this.lanCurve.userData.bloom = true;
-    this.lanBall.userData.bloom = true;
-
     this.group.add(this.lanCurve);
     this.group.add(this.lanBall);
   }
 
   setupProgressValue() {
-    let pulseValiue = 1;
+    let inc = 0;
+    // let pulseValiue = 1;
     this.onLoop(() => {
-      let time =
-        window.performance.now() * 0.00005 + Math.abs(pulseValiue) * 0.1;
-      this.lanCurve.material.uniforms.linearProgress.value =
-        Math.abs(Math.abs(time)) % 1;
-      this.lanBall.material.uniforms.linearProgress.value =
-        Math.abs(Math.abs(time)) % 1;
+      inc += (1000 / 60) * 0.00002;
+      this.lanCurve.material.uniforms.linearProgress.value = inc % 1;
+      this.lanBall.material.uniforms.linearProgress.value = inc % 1;
     });
 
-    let audio = ({ detail: { low, mid, high, texture } }) => {
-      if (low !== 0) {
-        pulseValiue = (1 * (low + mid + high)) / 3;
-      }
-    };
-    window.addEventListener("audio-info", audio);
+    // let audio = ({ detail: { low, mid, high, texture } }) => {
+    //   if (low !== 0) {
+    //     pulseValiue = (1 * (low + mid + high)) / 3;
+    //   }
+    // };
+    // window.addEventListener("audio-info", audio);
   }
 }
