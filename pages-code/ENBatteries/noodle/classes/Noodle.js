@@ -285,8 +285,8 @@ export class Noodle {
           euler.x = dir.x;
           euler.y = dir.y;
           euler.z = dir.z;
-          out.applyAxisAngle(yaxis, cp * 100.0);
           out.applyEuler(euler);
+          out.applyAxisAngle(yaxis, ee * 10.0);
 
           this[`controlPoint${i}`].push(out.x, out.y, out.z);
         }
