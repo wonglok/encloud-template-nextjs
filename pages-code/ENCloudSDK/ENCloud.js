@@ -21,11 +21,15 @@ export class ENCloud {
       socket: false,
     });
 
-    let raw = fallbackJSON;
-    let json = JSON.parse(fallbackJSON.largeString);
+    try {
+      let raw = fallbackJSON;
+      let json = JSON.parse(fallbackJSON.largeString);
 
-    this.projectStatus.raw = raw;
-    this.projectStatus.json = json;
+      this.projectStatus.raw = raw;
+      this.projectStatus.json = json;
+    } catch (e) {
+      console.log(e);
+    }
 
     this.waitForTruth = (fnc) => {
       if (fnc) {
