@@ -25,12 +25,12 @@ export class Story {
     this.qualityFactor = 1;
     this.amountFactor = 300;
     this.noiseLevel = 1.0;
-    this.cylinderSides = 3 * this.qualityFactor;
+    this.cylinderSides = 4 * this.qualityFactor;
     this.segments = 13 * this.qualityFactor;
     this.ctrlPts = 8;
     this.restartDelay = 0;
 
-    this.inverseScaleForFloatingPts = 35.0;
+    this.inverseScaleForFloatingPts = 20.0;
     this.momoRandomNess = 4.0 * this.inverseScaleForFloatingPts;
     this.momoScale = 1.8 * this.inverseScaleForFloatingPts;
     this.group.scale.set(

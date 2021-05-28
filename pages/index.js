@@ -90,7 +90,9 @@ export default function Home({ buildTimeCache }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Canvas>
+      <Canvas
+        dpr={typeof window !== "undefined" ? window.devicePixelRatio : 1.0}
+      >
         {/*  */}
         <EffectNode
           projectJSON={buildTimeCache || getProjectJSON()}

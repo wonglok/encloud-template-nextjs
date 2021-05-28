@@ -20,6 +20,13 @@ export class ENCloud {
       json: false,
       socket: false,
     });
+
+    let raw = fallbackJSON;
+    let json = JSON.parse(fallbackJSON.largeString);
+
+    this.projectStatus.raw = raw;
+    this.projectStatus.json = json;
+
     this.waitForTruth = (fnc) => {
       if (fnc) {
         let tt = setInterval(() => {
