@@ -11,6 +11,8 @@ export class ENRuntime {
     enBatteries = [],
     autoStartLoop = true,
   }) {
+    let top = this;
+
     if (!projectJSON) {
       throw new Error("NEEDS Project JSON");
     }
@@ -26,17 +28,63 @@ export class ENRuntime {
     };
 
     this.fallBackJSON = projectJSON;
-    this.mini = new ENMini({ name: "ENProjectRuntime" });
+    this.runtimes = [];
+
+    this.mini = new ENMini({
+      name: "ENProjectRuntime",
+    });
+
     this.encloud = new ENCloud({
       fallbackJSON: this.fallBackJSON,
       mini: this.mini,
       parent: this,
     });
+
     this.projectJSON = false;
     this.autoStartLoop = autoStartLoop;
     this.enBatteries = enBatteries;
     this.userData = userData;
-    this.promise = this.setup();
+    this.wait = this.setup();
+    this.env = {
+      set: (k, v) => {
+        this.mini.set(k, v);
+      },
+      get: (k) => {
+        return this.ready[k];
+      },
+    };
+  }
+
+  //
+  // Runtime Write Env to Runtime Store
+  //
+  // Node Write Env to NodeCore Store
+  //
+  // Node Read Env from NodeCore Store if not available then Read Runtime Store
+  // Runtime Read Env from NodeCore Store if not avaialbe then Read Runtime Store
+  //
+  //
+
+  get ready() {
+    let getRuntime = (obj) => {
+      return new Promise((resolve) => {
+        let ttt = setInterval(() => {
+          let v = obj.runtimes[0];
+          if (v) {
+            clearInterval(ttt);
+            resolve(v);
+          }
+        });
+      });
+    };
+
+    return new Proxy(this, {
+      get: (obj, key) => {
+        return getRuntime(obj).then((runtime) => {
+          return runtime.mini.get(key);
+        });
+      },
+    });
   }
   async setup() {
     //
@@ -46,7 +94,7 @@ export class ENRuntime {
     let activeListener = new Map();
 
     //
-    let runtimes = [];
+    let runtimes = this.runtimes;
     let Signatures = {
       now: "now",
       last: "last",
@@ -136,13 +184,6 @@ export class ENRuntime {
           parent: this,
         })
       );
-      // setTimeout(() => {
-      //   runtimes.push(
-      //     new CodeRuntime({
-      //       parent: this,
-      //     })
-      //   );
-      // }, 1000);
     };
 
     window.addEventListener("remake-graph", remakeGraph, false);

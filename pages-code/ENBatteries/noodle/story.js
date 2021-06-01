@@ -25,4 +25,6 @@ export const effect = async (node) => {
   node.onClean(() => {
     noodle.cleanUpScene();
   });
+
+  node.env.set("node123", "stoty123");
 };

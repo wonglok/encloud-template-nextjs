@@ -50,28 +50,6 @@ let loadBattriesInFolder = () => {
   return enBatteries;
 };
 
-function EffectNode({ projectJSON }) {
-  let three = useThree();
-  useEffect(() => {
-    //
-    let enRunTime = new ENRuntime({
-      projectJSON: projectJSON,
-      enBatteries: loadBattriesInFolder(),
-      userData: {},
-    });
-
-    Object.entries(three).forEach(([key, value]) => {
-      enRunTime.mini.set(key, value);
-    });
-
-    return () => {
-      enRunTime.mini.clean();
-    };
-  }, []);
-
-  return <group></group>;
-}
-
 export async function getStaticProps(context) {
   let project = getProjectJSON();
   let projectID = project._id;
@@ -105,30 +83,43 @@ export async function getStaticProps(context) {
   };
 }
 
-function EffectNodeR3F({ enRunTime }) {
+function EffectNodeSyncState({ enRunTime }) {
   useFrame((st, dt) => {
     Object.entries(st).forEach(([key, value]) => {
-      enRunTime.mini.set(key, value);
+      enRunTime.env.set(key, value);
     });
-    enRunTime.mini.set("dt", dt);
+    //
+    enRunTime.env.set("dt", dt);
     return () => {};
   }, []);
 
   return <group></group>;
 }
 
-function EffectNodeDOM({ enRunTime }) {
-  //
-  //
-  useEffect(() => {
-    //
-    //
-  }, []);
-  //
+//
+// function makeEventReactive ({ enRunTime, key: event }) {
+//   let [st, setSt] = useState(0);
+//   useEffect(() => {
+//     let hh = () => {
+//       setSt((s) => s + 1);
+//     };
+//     enRunTime.on(event, hh);
+//     return () => {
+//       enRunTime.off(event, hh);
+//     };
+//   });
+//   return null;
+// }
+//
+
+function EffectNodeOverlay({ enRunTime }) {
   return (
     <>
       <div className="absolute top-0 right-0 h-20 w-20 bg-white">
         <button
+          style={{
+            color: "black",
+          }}
           onClick={() => {
             enRunTime.emit("top-right-click", {});
           }}
@@ -144,7 +135,6 @@ export default function Home({ buildTimeCache }) {
   let [enRunTime, setRuntime] = useState(false);
 
   useEffect(() => {
-    //
     let enRunTime = new ENRuntime({
       projectJSON: buildTimeCache || getProjectJSON(),
       enBatteries: loadBattriesInFolder(),
@@ -152,6 +142,8 @@ export default function Home({ buildTimeCache }) {
     });
 
     setRuntime(enRunTime);
+
+    enRunTime.ready.node123.then(console.log);
 
     return () => {
       enRunTime.mini.clean();
@@ -170,7 +162,7 @@ export default function Home({ buildTimeCache }) {
           <Canvas
             dpr={typeof window !== "undefined" ? window.devicePixelRatio : 1.0}
           >
-            <EffectNodeR3F enRunTime={enRunTime}></EffectNodeR3F>
+            <EffectNodeSyncState enRunTime={enRunTime}></EffectNodeSyncState>
 
             <directionalLight
               position={[10, 10, 10]}
@@ -186,7 +178,7 @@ export default function Home({ buildTimeCache }) {
             <OrbitControls></OrbitControls>
           </Canvas>
 
-          <EffectNodeDOM enRunTime={enRunTime}></EffectNodeDOM>
+          <EffectNodeOverlay enRunTime={enRunTime}></EffectNodeOverlay>
         </>
       )}
     </div>
