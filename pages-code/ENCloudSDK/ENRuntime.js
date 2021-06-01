@@ -1,6 +1,6 @@
 import { ENCloud } from "./ENCloud";
 import { ENMini } from "./ENMini";
-import { getID } from "./ENUtils";
+import { getID, EventEmitter } from "./ENUtils";
 
 export { BASEURL_REST, BASEURL_WS } from "./ENCloud";
 
@@ -14,6 +14,17 @@ export class ENRuntime {
     if (!projectJSON) {
       throw new Error("NEEDS Project JSON");
     }
+    this.events = new EventEmitter();
+    this.on = (ev, fnc) => {
+      this.events.addEventListener(ev, fnc);
+    };
+    this.off = (ev, fnc) => {
+      this.events.removeEventListener(ev, fnc);
+    };
+    this.emit = (ev, data) => {
+      this.events.trigger(ev, data);
+    };
+
     this.fallBackJSON = projectJSON;
     this.mini = new ENMini({ name: "ENProjectRuntime" });
     this.encloud = new ENCloud({
@@ -57,6 +68,7 @@ export class ENRuntime {
     };
 
     let handleArrival = ({ detail }) => {
+      //
       this.projectJSON = detail;
 
       //
@@ -345,6 +357,18 @@ export class CodeRuntime {
             get: runtime.mini.get,
             set: runtime.mini.set,
           },
+
+          //
+          on: (ev, fnc) => {
+            this.parent.on(ev, fnc);
+          },
+          off: (ev, fnc) => {
+            this.parent.off(ev, fnc);
+          },
+          emit: (ev, fnc) => {
+            this.parent.emit(ev, fnc);
+          },
+
           runtime: runtime,
           graphEngine: runtime.mini,
           pickers: this.parent.pickers,

@@ -21,6 +21,10 @@ export const effect = async (node) => {
     },
   });
 
+  node.on("top-right-click", () => {
+    o3d.visible = !o3d.visible;
+  });
+
   //
   node.onClean(() => {
     noodle.cleanUpScene();

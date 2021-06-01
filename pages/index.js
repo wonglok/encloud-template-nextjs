@@ -1,7 +1,7 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ENRuntime, BASEURL_REST } from "../pages-code/ENCloudSDK/ENRuntime";
 import { EnvMap } from "../pages-code/EnvMap/EnvMap";
 import { Bloom } from "../pages-code/Bloom/Bloom";
@@ -105,7 +105,59 @@ export async function getStaticProps(context) {
   };
 }
 
+function EffectNodeR3F({ enRunTime }) {
+  useFrame((st, dt) => {
+    Object.entries(st).forEach(([key, value]) => {
+      enRunTime.mini.set(key, value);
+    });
+    enRunTime.mini.set("dt", dt);
+    return () => {};
+  }, []);
+
+  return <group></group>;
+}
+
+function EffectNodeDOM({ enRunTime }) {
+  //
+  //
+  useEffect(() => {
+    //
+    //
+  }, []);
+  //
+  return (
+    <>
+      <div className="absolute top-0 right-0 h-20 w-20 bg-white">
+        <button
+          onClick={() => {
+            enRunTime.emit("top-right-click", {});
+          }}
+        >
+          Toggle Yellow Lines
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function Home({ buildTimeCache }) {
+  let [enRunTime, setRuntime] = useState(false);
+
+  useEffect(() => {
+    //
+    let enRunTime = new ENRuntime({
+      projectJSON: buildTimeCache || getProjectJSON(),
+      enBatteries: loadBattriesInFolder(),
+      userData: {},
+    });
+
+    setRuntime(enRunTime);
+
+    return () => {
+      enRunTime.mini.clean();
+    };
+  }, []);
+
   return (
     <div className={"h-full w-full"}>
       <Head>
@@ -113,44 +165,30 @@ export default function Home({ buildTimeCache }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Canvas
-        dpr={typeof window !== "undefined" ? window.devicePixelRatio : 1.0}
-      >
-        {/*  */}
-        <EffectNode
-          projectJSON={buildTimeCache || getProjectJSON()}
-        ></EffectNode>
+      {enRunTime && (
+        <>
+          <Canvas
+            dpr={typeof window !== "undefined" ? window.devicePixelRatio : 1.0}
+          >
+            <EffectNodeR3F enRunTime={enRunTime}></EffectNodeR3F>
 
-        {/*  */}
-        <directionalLight
-          position={[10, 10, 10]}
-          intensity={0.1}
-        ></directionalLight>
+            <directionalLight
+              position={[10, 10, 10]}
+              intensity={0.1}
+            ></directionalLight>
 
-        {/*  */}
-        <ambientLight intensity={0.1}></ambientLight>
+            <ambientLight intensity={0.1}></ambientLight>
 
-        {/*  */}
-        <EnvMap></EnvMap>
+            <EnvMap></EnvMap>
 
-        <Bloom></Bloom>
+            <Bloom></Bloom>
 
-        {/* <Sphere position-x={-1} args={[1, 25, 25]}>
-          <meshStandardMaterial
-            metalness={0.9}
-            roughness={0.1}
-          ></meshStandardMaterial>
-        </Sphere>
+            <OrbitControls></OrbitControls>
+          </Canvas>
 
-        <Box position-x={1} args={[2, 2, 2, 25, 25, 25]}>
-          <meshStandardMaterial
-            metalness={0.9}
-            roughness={0.1}
-          ></meshStandardMaterial>
-        </Box> */}
-
-        <OrbitControls></OrbitControls>
-      </Canvas>
+          <EffectNodeDOM enRunTime={enRunTime}></EffectNodeDOM>
+        </>
+      )}
     </div>
   );
 }
